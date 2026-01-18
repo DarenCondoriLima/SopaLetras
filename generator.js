@@ -1,5 +1,3 @@
-
-// --- GENERADOR DE SOPA ---
 class GeneradorSopa {
     constructor(filas = 20, columnas = 20) {
         this.filas = filas;
@@ -9,6 +7,7 @@ class GeneradorSopa {
         this.palabrasColocadas = [];
         this.palabrasOmitidas = [];
         this.direcciones = [];
+        this.letrasDelJuego = ""; 
     }
 
     inicializarGrilla() {
@@ -16,39 +15,73 @@ class GeneradorSopa {
         this.soluciones = {};
         this.palabrasColocadas = [];
         this.palabrasOmitidas = [];
+        // Por defecto, relleno normal
+        this.letrasDelJuego = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"; 
     }
 
-    configurarDificultad(nivel) {
+    configurarDificultad(nivel, listaPalabras) {
+        // Direcciones normales
         const horizontal = { x: 1, y: 0 };
         const vertical = { x: 0, y: 1 };
         const diagonalAbajo = { x: 1, y: 1 };
         const diagonalArriba = { x: 1, y: -1 };
+        
+        // Direcciones invertidas (El caos)
         const horizontalInv = { x: -1, y: 0 };
         const verticalInv = { x: 0, y: -1 };
         const diagonalAbajoInv = { x: -1, y: 1 };
         const diagonalArribaInv = { x: -1, y: -1 };
 
+        // Definimos el pool de letras para el camuflaje
+        let letrasCamuflaje = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
+        
+        // Calculamos las letras únicas SI es necesario (para optimizar)
+        if (nivel === 'insano') {
+            const letrasUnicas = new Set(listaPalabras.join('').toUpperCase().split(''));
+            const filtradas = [...letrasUnicas].filter(char => /[A-ZÑ]/.test(char));
+            if (filtradas.length > 0) {
+                letrasCamuflaje = filtradas.join('');
+            }
+        }
+
         switch (nivel) {
             case 'facil':
                 this.direcciones = [horizontal, vertical];
+                this.letrasDelJuego = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
                 break;
+
             case 'medio':
                 this.direcciones = [horizontal, vertical, diagonalAbajo, diagonalArriba];
+                this.letrasDelJuego = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
                 break;
+
             case 'dificil':
+                // Todas las direcciones, pero con letras de relleno normales para dar un respiro
                 this.direcciones = [
                     horizontal, vertical, diagonalAbajo, diagonalArriba,
                     horizontalInv, verticalInv, diagonalAbajoInv, diagonalArribaInv
                 ];
+                this.letrasDelJuego = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
                 break;
+
+            case 'insano':
+                // TODAS las direcciones Y relleno restringido
+                this.direcciones = [
+                    horizontal, vertical, diagonalAbajo, diagonalArriba,
+                    horizontalInv, verticalInv, diagonalAbajoInv, diagonalArribaInv
+                ];
+                this.letrasDelJuego = letrasCamuflaje;
+                break;
+
             default:
                 this.direcciones = [horizontal, vertical];
+                this.letrasDelJuego = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
         }
     }
 
     generar(listaPalabras, dificultad = 'facil') {
         this.inicializarGrilla();
-        this.configurarDificultad(dificultad);
+        this.configurarDificultad(dificultad, listaPalabras);
         
         const palabrasOrdenadas = listaPalabras
             .map(p => p.toUpperCase().replace(/[^A-ZÑ]/g, ''))
@@ -63,6 +96,7 @@ class GeneradorSopa {
         });
 
         this.rellenarHuecos();
+        
         return {
             grilla: this.grilla,
             colocadas: this.palabrasColocadas,
@@ -93,13 +127,42 @@ class GeneradorSopa {
         const finFila = fila + (dir.y * (palabra.length - 1));
         const finCol = col + (dir.x * (palabra.length - 1));
 
-        if (finFila < 0 || finFila >= this.filas || finCol < 0 || finCol >= this.columnas) return false;
+        // 1. Verificar si la palabra entera cabe dentro de los límites
+        if (finFila < 0 || finFila >= this.filas || finCol < 0 || finCol >= this.columnas) {
+            return false;
+        }
 
+        // --- NUEVA REGLA: MARGEN DE SEGURIDAD ---
+        // Esto evita "MISTISABANDIA". Verifica que no haya letras pegadas
+        // justo antes ni justo después en la misma línea.
+        
+        // Revisar casilla ANTERIOR al inicio
+        const preFila = fila - dir.y;
+        const preCol = col - dir.x;
+        // Si la casilla anterior existe (está dentro del mapa) Y no está vacía... rechazamos.
+        if (preFila >= 0 && preFila < this.filas && preCol >= 0 && preCol < this.columnas) {
+            if (this.grilla[preFila][preCol] !== '') return false;
+        }
+
+        // Revisar casilla POSTERIOR al final
+        const postFila = finFila + dir.y;
+        const postCol = finCol + dir.x;
+        // Si la casilla posterior existe Y no está vacía... rechazamos.
+        if (postFila >= 0 && postFila < this.filas && postCol >= 0 && postCol < this.columnas) {
+            if (this.grilla[postFila][postCol] !== '') return false;
+        }
+        // ----------------------------------------
+
+        // 2. Verificar colisiones letra por letra (Cruces válidos)
         for (let i = 0; i < palabra.length; i++) {
             const f = fila + (dir.y * i);
             const c = col + (dir.x * i);
             const celdaActual = this.grilla[f][c];
-            if (celdaActual !== '' && celdaActual !== palabra[i]) return false;
+
+            // La celda debe estar vacía O tener la MISMA letra
+            if (celdaActual !== '' && celdaActual !== palabra[i]) {
+                return false;
+            }
         }
         return true;
     }
@@ -112,11 +175,11 @@ class GeneradorSopa {
     }
 
     rellenarHuecos() {
-        const letras = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
         for (let f = 0; f < this.filas; f++) {
             for (let c = 0; c < this.columnas; c++) {
                 if (this.grilla[f][c] === '') {
-                    this.grilla[f][c] = letras[Math.floor(Math.random() * letras.length)];
+                    // Usamos el pool de letras definido en configurarDificultad
+                    this.grilla[f][c] = this.letrasDelJuego[Math.floor(Math.random() * this.letrasDelJuego.length)];
                 }
             }
         }

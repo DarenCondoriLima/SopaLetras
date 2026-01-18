@@ -1,5 +1,4 @@
-    
-/* --- VARIABLES DE TEMA --- */
+/* --- VARIABLES --- */
 :root {
     --bg-body: #f5f7fa;
     --bg-sidebar: #ffffff;
@@ -10,11 +9,7 @@
     --input-border: #cbd5e1;
     --accent-color: #3b82f6;
     --accent-hover: #2563eb;
-    --success-color: #10b981;
-    --success-hover: #059669;
-    --danger-color: #ef4444;
     --sheet-shadow: rgba(0,0,0,0.08);
-    --sheet-bg: #ffffff;
     --grid-border: #1e293b;
     --highlight-color: #fbbf24;
 }
@@ -29,489 +24,161 @@
     --input-border: #475569;
     --accent-color: #60a5fa;
     --accent-hover: #3b82f6;
-    --success-color: #34d399;
-    --success-hover: #10b981;
-    --danger-color: #f87171;
     --sheet-shadow: rgba(0,0,0,0.4);
-    --sheet-bg: #ffffff;
     --grid-border: #1e293b;
     --highlight-color: #f59e0b;
 }
 
-/* --- RESET Y BASE --- */
-* { 
-    box-sizing: border-box; 
-    margin: 0; 
-    padding: 0; 
-}
+/* --- RESET BÁSICO --- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg-body);
     color: var(--text-primary);
-    min-height: 100vh;
-    overflow: hidden;
-    transition: background-color 0.3s, color 0.3s;
+    
+    /* CAMBIO 1: En PC usamos altura fija, en móvil (media query) lo anularemos */
+    height: 100vh; 
+    overflow: hidden; 
 }
 
-.app-container { 
-    display: flex; 
-    height: 100vh; 
-}
+.app-container { display: flex; height: 100vh; }
 
 /* --- SIDEBAR --- */
 .sidebar {
     width: 380px;
     background-color: var(--bg-sidebar);
     padding: 2rem 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
+    display: flex; flex-direction: column; gap: 1.25rem;
     box-shadow: 4px 0 20px rgba(0,0,0,0.05);
     overflow-y: auto;
     border-right: 1px solid var(--border-color);
-    transition: background-color 0.3s;
+    z-index: 10;
 }
 
-.header-tools {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-}
+/* Header Tools */
+.header-tools { display: flex; justify-content: space-between; align-items: center; }
+.btn-icon { background: var(--input-bg); border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 8px; cursor: pointer; color: var(--text-primary); }
 
-.header-tools h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
+.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.form-group-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group-inline-option { display: flex; flex-direction: column; gap: 0.5rem; }
+.tools-row { display: flex; gap: 10px; }
 
-.btn-icon {
-    background: var(--input-bg);
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    font-size: 1.3rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    color: var(--text-primary);
-    transition: all 0.2s;
-}
-
-.btn-icon:hover {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-    transform: scale(1.05);
-}
-
-.sidebar > p {
-    color: var(--text-secondary);
-    font-size: 0.9rem;
-    margin-top: -0.5rem;
-}
-
-.form-group { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 0.5rem; 
-}
-
-.form-group-inline { 
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem; 
-}
-
-.form-group-inline-option { 
-    display: flex; 
-    flex-direction: column; 
-    gap: 0.5rem;
-}
-
-label { 
-    font-size: 0.875rem; 
-    font-weight: 600; 
-    color: var(--text-secondary);
-    letter-spacing: 0.01em;
-}
-
-input[type="text"], 
-input[type="number"], 
-textarea {
-    padding: 0.75rem;
-    border: 1px solid var(--input-border);
-    background-color: var(--input-bg);
-    color: var(--text-primary);
-    border-radius: 8px;
-    font-family: inherit;
-    font-size: 0.95rem;
-    transition: all 0.2s;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus,
-textarea:focus {
-    outline: none;
-    border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-textarea { 
-    font-family: 'Roboto Mono', monospace;
-    resize: vertical;
-    min-height: 120px;
-}
-
-/* Radio Buttons */
-.radio-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    background: var(--input-bg);
-    padding: 0.75rem;
-    border-radius: 8px;
-    border: 1px solid var(--input-border);
-}
-
-.radio-group label {
-    font-weight: 400;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 6px;
-    transition: background-color 0.2s;
-}
-
-.radio-group label:hover {
-    background-color: rgba(59, 130, 246, 0.05);
-}
-
-input[type="radio"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-/* Checkbox */
-input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.checkbox-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    cursor: pointer;
-    padding: 0.75rem;
-    background: var(--input-bg);
-    border-radius: 8px;
-    border: 1px solid var(--input-border);
-    transition: all 0.2s;
-}
-
-.checkbox-label:hover {
-    background-color: rgba(59, 130, 246, 0.05);
-}
+input, textarea { padding: 0.75rem; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-primary); border-radius: 8px; }
+textarea { font-family: 'Roboto Mono', monospace; min-height: 100px; resize: vertical; }
 
 /* Botones */
-button {
-    padding: 0.875rem 1.25rem;
-    border: none;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-size: 0.95rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-}
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; border: 1px solid transparent; flex: 1; }
+.btn-outline-danger { background: transparent; border-color: #ef4444; color: #ef4444; }
+.btn-outline-danger:hover { background: #ef4444; color: white; }
+.btn-outline-info { background: transparent; border-color: #3b82f6; color: #3b82f6; }
+.btn-outline-info:hover { background: #3b82f6; color: white; }
 
-.btn-primary { 
-    background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+button { border: none; font-weight: 600; cursor: pointer; transition: 0.2s; border-radius: 8px; }
+.btn-primary { background: var(--accent-color); color: white; padding: 12px; }
+.btn-secondary { background: #10b981; color: white; padding: 12px; }
+.btn-secondary:disabled { background: #94a3b8; cursor: not-allowed; }
+.purple { background: #8b5cf6; }
+.button-group { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+
+.radio-group { background: var(--input-bg); padding: 10px; border: 1px solid var(--input-border); border-radius: 8px; display: flex; flex-direction: column; gap: 5px; }
+.checkbox-label { display: flex; align-items: center; gap: 8px; padding: 10px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; cursor: pointer; }
+
+/* Botón Móvil */
+.btn-mobile-only {
+    display: none; 
+    width: 100%;
+    background-color: #f59e0b;
     color: white;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    padding: 12px;
+    margin-top: 5px;
 }
 
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
-}
-
-.btn-secondary { 
-    background: linear-gradient(135deg, var(--success-color), var(--success-hover));
-    color: white;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.btn-secondary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-}
-
-.btn-secondary.purple {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
-}
-
-.btn-secondary.purple:hover {
-    box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
-}
-
-.btn-secondary:disabled { 
-    background: linear-gradient(135deg, #94a3b8, #64748b);
-    cursor: not-allowed; 
-    opacity: 0.6;
-    transform: none;
-    box-shadow: none;
-}
-
-.btn-sm { 
-    padding: 0.5rem 1rem; 
-    font-size: 0.85rem; 
-    background: linear-gradient(135deg, var(--danger-color), #dc2626);
-    color: white;
-    align-self: flex-start;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-}
-
-.btn-sm:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
-}
-
-.button-group {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.75rem;
-}
-
-/* --- PREVIEW AREA --- */
+/* --- PREVIEW AREA (PC) --- */
 .preview-area {
     flex: 1;
-    background: linear-gradient(135deg, var(--bg-body) 0%, rgba(59, 130, 246, 0.05) 100%);
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
+    background-color: var(--bg-body);
     padding: 2rem;
-    overflow-y: auto;
+    overflow: auto; 
+    display: flex;
+    /* En PC centramos la hoja, en móvil (abajo) lo cambiaremos */
+    justify-content: center; 
+    align-items: flex-start;
 }
 
 /* --- HOJA DE PAPEL --- */
 .sheet {
-    background-color: var(--sheet-bg);
-    width: 100%;
-    max-width: 210mm;
-    min-height: 297mm;
-    padding: 3rem 2.5rem;
-    box-shadow: 0 10px 40px var(--sheet-shadow);
-    color: #1e293b;
-    display: flex; 
-    flex-direction: column; 
-    align-items: center;
-    border-radius: 8px;
-}
-
-.sheet h2 { 
-    font-size: 2rem;
-    font-weight: 700;
-    border-bottom: 3px solid #1e293b;
-    margin-bottom: 2rem;
-    width: 100%;
-    text-align: center;
-    padding-bottom: 1rem;
-    letter-spacing: -0.02em;
-}
-
-.grid-container {
-    display: grid;
-    gap: 2px;
-    border: 3px solid var(--grid-border);
-    background-color: var(--grid-border);
-    margin-bottom: 2.5rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.grid-cell {
     background-color: white;
-    aspect-ratio: 1/1;
-    display: flex; 
-    align-items: center; 
-    justify-content: center;
-    font-family: 'Roboto Mono', monospace;
-    font-weight: 700;
-    font-size: 1.15rem;
-    text-transform: uppercase;
-    color: #1e293b;
-    transition: all 0.2s;
-}
-
-.grid-cell.highlight {
-    background-color: var(--highlight-color) !important;
-    color: #000 !important;
-}
-
-.word-bank {
     width: 100%;
-    background: #f8fafc;
-    padding: 1.5rem;
-    border-radius: 8px;
-    border: 2px solid #e2e8f0;
-}
-
-.word-bank h3 { 
-    margin-bottom: 1rem;
-    font-size: 1.1rem;
+    /* TRUCOS PARA PDF PERFECTO: */
+    max-width: 210mm; 
+    min-width: 210mm; /* Mantiene el ancho real de A4 aunque la pantalla sea pequeña */
+    min-height: 297mm;
+    padding: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     color: #1e293b;
-    font-weight: 600;
+    display: flex; flex-direction: column; align-items: center;
+    /* Evita que la hoja se encoja dentro del flex */
+    flex-shrink: 0; 
 }
 
-#lista-palabras {
-    list-style: none;
-    display: grid; 
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 0.75rem;
-}
+.sheet h2 { text-align: center; border-bottom: 3px solid #333; margin-bottom: 20px; width: 100%; padding-bottom: 10px; }
 
-#lista-palabras li { 
-    font-size: 0.95rem;
-    color: #334155;
-    padding: 0.5rem;
-    background: white;
-    border-radius: 4px;
-    border: 1px solid #e2e8f0;
-    text-align: center;
-    font-weight: 500;
-}
+.grid-container { display: grid; gap: 2px; border: 3px solid #1e293b; background: #1e293b; margin-bottom: 30px; }
+.grid-cell { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 1.2rem; text-transform: uppercase; }
+.grid-cell.highlight { background-color: var(--highlight-color) !important; color: black !important; }
 
-.footer-sheet { 
-    margin-top: auto;
-    padding-top: 1.5rem;
-    border-top: 2px solid #e2e8f0;
-    width: 100%;
-    text-align: center;
-    font-size: 0.85rem;
-    color: #94a3b8;
-}
+.word-bank { width: 100%; background: #f8fafc; padding: 20px; border: 2px solid #e2e8f0; border-radius: 8px; }
+#lista-palabras { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+#lista-palabras li { text-align: center; font-size: 0.9rem; padding: 5px; background: white; border: 1px solid #ddd; border-radius: 4px; }
+.footer-sheet { margin-top: auto; padding-top: 20px; border-top: 1px solid #eee; width: 100%; text-align: center; color: #999; font-size: 0.8rem; }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 1024px) {
-    .sidebar {
-        width: 320px;
-        padding: 1.5rem 1rem;
-    }
-    
-    .sheet {
-        padding: 2rem 1.5rem;
-    }
-}
-
+/* =========================================
+   --- CAMBIOS CRUCIALES PARA MÓVIL --- 
+   ========================================= */
 @media (max-width: 768px) {
-    .app-container { 
-        flex-direction: column; 
+    /* 1. Liberamos el scroll del body */
+    body {
         height: auto;
-        min-height: 100vh;
+        overflow-y: auto; /* Permite scroll vertical nativo */
+        overflow-x: hidden; /* Evita scroll horizontal en toda la app, solo en la hoja */
     }
-    
-    .sidebar { 
-        width: 100%; 
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--border-color);
-    }
-    
-    .preview-area {
-        padding: 1.5rem 1rem;
-        min-height: 60vh;
-    }
-    
-    .sheet {
-        max-width: 100%;
-        min-height: auto;
-        padding: 1.5rem 1rem;
-    }
-    
-    .sheet h2 {
-        font-size: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    
-    .grid-container {
-        margin-bottom: 1.5rem;
-    }
-    
-    .grid-cell {
-        font-size: 0.85rem;
-    }
-    
-    #lista-palabras {
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: 0.5rem;
-    }
-    
-    #lista-palabras li {
-        font-size: 0.85rem;
-        padding: 0.4rem;
-    }
-    
-    .word-bank {
-        padding: 1rem;
-    }
-    
-    .button-group {
-        grid-template-columns: 1fr;
-    }
-}
 
-@media (max-width: 480px) {
-    .header-tools h1 {
-        font-size: 1.25rem;
+    .app-container {
+        flex-direction: column;
+        height: auto; /* La altura ya no está limitada */
+        overflow: visible;
     }
-    
+
     .sidebar {
-        padding: 1rem;
-        gap: 1rem;
+        width: 100%;
+        height: auto;
+        padding: 1.5rem;
+        /* Quitamos overflow de sidebar porque ahora scrollea con toda la página */
+        overflow: visible; 
     }
-    
-    .form-group-inline {
-        grid-template-columns: 1fr;
+
+    /* Botón visible solo en móvil */
+    .btn-mobile-only { display: block; }
+
+    /* 2. Área de Previsualización con Scroll Horizontal */
+    .preview-area {
+        display: block; /* Cambiamos de Flex a Block para mejor control del scroll */
+        width: 100%;
+        height: auto;
+        padding: 20px;
+        
+        /* MAGIA PARA SCROLL HORIZONTAL: */
+        overflow-x: auto; /* Permite deslizar a los lados */
+        -webkit-overflow-scrolling: touch; /* Suavidad en iPhone */
     }
-    
+
     .sheet {
-        padding: 1rem;
+        /* Centramos la hoja con margen automático */
+        margin: 0 auto; 
+        
+        /* Aseguramos que el usuario pueda ver la hoja completa haciendo scroll */
+        /* Al tener min-width: 210mm (definido arriba), el contenedor .preview-area activará su scrollbar horizontal */
     }
-    
-    .sheet h2 {
-        font-size: 1.25rem;
-    }
-    
-    .grid-cell {
-        font-size: 0.75rem;
-    }
-}
-
-/* Scrollbar personalizado */
-::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--bg-body);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--text-secondary);
 }
