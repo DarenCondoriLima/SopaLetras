@@ -1,62 +1,133 @@
-// Esperar a que cargue el DOM
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Referencias a elementos del DOM
+    // Referencias DOM
     const btnGenerar = document.getElementById('btn-generar');
     const btnDescargar = document.getElementById('btn-descargar');
+    const btnSolucion = document.getElementById('btn-solucion'); // Nuevo botón
+    const btnEliminar = document.getElementById('btn-eliminar-texto');
+    const btnTema = document.getElementById('btn-tema');
+    
+    // Inputs y áreas
     const inputPalabras = document.getElementById('palabras');
     const inputTitulo = document.getElementById('titulo');
     const displayTitulo = document.getElementById('display-titulo');
     const gridContainer = document.getElementById('grid-container');
     const listaPalabrasUl = document.getElementById('lista-palabras');
     const hojaPapel = document.getElementById('hoja-papel');
+    const inputFilas = document.getElementById('filas');
+    const inputCols = document.getElementById('cols');
+    const radiosDificultad = document.getElementsByName('dificultad');
 
-    // Instancia del generador (usando la clase que creamos en el paso anterior)
-    let generador;
+    // ESTADO DE LA APLICACIÓN
+    let datosSolucion = null; // Aquí guardaremos las coordenadas
+    let mostrandoSolucion = false;
 
-    // --- FUNCIÓN GENERAR ---
-    btnGenerar.addEventListener('click', () => {
-        const filas = parseInt(document.getElementById('filas').value);
-        const cols = parseInt(document.getElementById('cols').value);
-        const textoRaw = inputPalabras.value;
-        
-        // Procesar palabras: separar por comas o saltos de línea, quitar espacios vacíos
-        const listaPalabras = textoRaw.split(/[\n,]+/).map(p => p.trim()).filter(p => p.length > 0);
-
-        if (listaPalabras.length === 0) {
-            alert("Por favor ingresa al menos una palabra.");
-            return;
-        }
-
-        // 1. Configurar título
-        displayTitulo.innerText = inputTitulo.value || "Sopa de Letras";
-
-        // 2. Ejecutar lógica
-        generador = new GeneradorSopa(filas, cols);
-        const resultado = generador.generar(listaPalabras);
-
-        // 3. Renderizar Grilla
-        renderizarGrilla(resultado.grilla, filas, cols);
-
-        // 4. Renderizar Lista de palabras (solo las que sí cupieron)
-        renderizarLista(resultado.colocadas);
-
-        // 5. Habilitar botón de descarga
-        btnDescargar.disabled = false;
-
-        // Si hubo omitidas, avisar
-        if (resultado.omitidas.length > 0) {
-            alert(`Atención: No cupieron estas palabras: ${resultado.omitidas.join(", ")}. Intenta aumentar el tamaño de la cuadrícula.`);
+    // --- MODO OSCURO (Igual que antes) ---
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.setAttribute('data-theme', 'dark');
+        btnTema.innerText = '☀️';
+    }
+    btnTema.addEventListener('click', () => {
+        const isDark = document.body.getAttribute('data-theme') === 'dark';
+        if (isDark) {
+            document.body.removeAttribute('data-theme');
+            btnTema.innerText = '🌙';
+            localStorage.setItem('theme', 'light');
+        } else {
+            document.body.setAttribute('data-theme', 'dark');
+            btnTema.innerText = '☀️';
+            localStorage.setItem('theme', 'dark');
         }
     });
 
-    function renderizarGrilla(matriz, filas, cols) {
-        gridContainer.innerHTML = ''; // Limpiar anterior
-        
-        // Configuramos CSS Grid dinámicamente según el tamaño elegido
-        gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-        gridContainer.style.gridTemplateRows = `repeat(${filas}, 1fr)`;
+    btnEliminar.addEventListener('click', () => {
+        if(confirm("¿Borrar lista?")) inputPalabras.value = '';
+    });
 
+    // --- GENERAR ---
+    btnGenerar.addEventListener('click', () => {
+        const filas = parseInt(inputFilas.value);
+        const cols = parseInt(inputCols.value);
+        const textoRaw = inputPalabras.value;
+        
+        let dificultad = 'facil';
+        for (const radio of radiosDificultad) {
+            if (radio.checked) { dificultad = radio.value; break; }
+        }
+        
+        const listaPalabras = textoRaw.split(/[\n,]+/).map(p => p.trim()).filter(p => p.length > 0);
+
+        if (listaPalabras.length === 0) { alert("Ingresa palabras"); return; }
+
+        displayTitulo.innerText = inputTitulo.value || "Sopa de Letras";
+
+        const generador = new GeneradorSopa(filas, cols);
+        const resultado = generador.generar(listaPalabras, dificultad);
+
+        // GUARDAMOS EL RESULTADO EN LA VARIABLE GLOBAL
+        datosSolucion = resultado;
+        mostrandoSolucion = false; // Resetear estado visual
+        btnSolucion.innerText = "👁️ Solución";
+
+        renderizarGrilla(resultado.grilla, filas, cols);
+        renderizarLista(resultado.colocadas);
+        
+        // Habilitar botones
+        btnDescargar.disabled = false;
+        btnSolucion.disabled = false;
+
+        if (resultado.omitidas.length > 0) alert(`No cupieron: ${resultado.omitidas.join(", ")}`);
+    });
+
+    // --- TOGGLE VER SOLUCIÓN ---
+    btnSolucion.addEventListener('click', () => {
+        if (!datosSolucion) return;
+
+        mostrandoSolucion = !mostrandoSolucion;
+        
+        if (mostrandoSolucion) {
+            btnSolucion.innerText = "Ocultar";
+            resaltarRespuestas(true);
+        } else {
+            btnSolucion.innerText = "👁️ Solución";
+            resaltarRespuestas(false);
+        }
+    });
+
+    // Función auxiliar para pintar/despintar celdas
+    function resaltarRespuestas(activar) {
+        const celdas = gridContainer.children;
+        const cols = parseInt(inputCols.value);
+        
+        // Limpiar todo primero
+        if (!activar) {
+            for (let celda of celdas) celda.classList.remove('highlight');
+            return;
+        }
+
+        // Recorrer cada palabra solucionada y calcular sus celdas
+        Object.keys(datosSolucion.soluciones).forEach(palabra => {
+            const { fila, col, dir } = datosSolucion.soluciones[palabra];
+            
+            for (let i = 0; i < palabra.length; i++) {
+                const fActual = fila + (dir.y * i);
+                const cActual = col + (dir.x * i);
+                
+                // Calcular índice lineal en el grid (Fila * TotalColumnas + Columna)
+                const index = (fActual * cols) + cActual;
+                
+                if (celdas[index]) {
+                    celdas[index].classList.add('highlight');
+                }
+            }
+        });
+    }
+
+    // --- RENDERIZADO ---
+    function renderizarGrilla(matriz, filas, cols) {
+        gridContainer.innerHTML = ''; 
+        gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        
         matriz.forEach(fila => {
             fila.forEach(letra => {
                 const celda = document.createElement('div');
@@ -76,53 +147,67 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- FUNCIÓN DESCARGAR PDF ---
+    // --- DESCARGAR PDF (CONDICIONAL) ---
     btnDescargar.addEventListener('click', async () => {
         const { jsPDF } = window.jspdf;
+        const chkIncluirSolucion = document.getElementById('chk-incluir-solucion'); // Referencia al checkbox
         
-        // Efecto visual de "cargando"
         const textoOriginal = btnDescargar.innerText;
         btnDescargar.innerText = "Generando PDF...";
         btnDescargar.disabled = true;
 
         try {
-            // 1. Capturar el div "hoja-papel" como imagen (Canvas)
-            const canvas = await html2canvas(hojaPapel, {
-                scale: 2, // Mayor calidad
-                useCORS: true // Por si usas imágenes externas (no es el caso aquí, pero buena práctica)
-            });
+            // Guardar estado visual actual (¿usuario estaba viendo respuestas?)
+            const estadoUsuarioSolucion = mostrandoSolucion;
 
-            const imgData = canvas.toDataURL('image/png');
-            
-            // 2. Crear PDF A4
+            // ------------------------------------------------
+            // PÁGINA 1: EL JUEGO (SIEMPRE SE GENERA)
+            // ------------------------------------------------
+            resaltarRespuestas(false); // Limpiamos visualmente para la foto
+            const canvasJuego = await html2canvas(hojaPapel, { scale: 2 });
+            const imgJuego = canvasJuego.toDataURL('image/png');
+
+            // Crear el documento PDF
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
             
-            // Calcular proporciones para que la imagen encaje bien
-            const imgProps = pdf.getImageProperties(imgData);
-            const marginTop = 10; // Margen superior de 10mm
-            const availableHeight = pdfHeight - marginTop - 10; // Reservar también 10mm de margen inferior
+            // Agregar imagen del juego
+            const propsJuego = pdf.getImageProperties(imgJuego);
+            const heightJuego = (propsJuego.height * pdfWidth) / propsJuego.width;
+            pdf.addImage(imgJuego, 'PNG', 0, 10, pdfWidth, heightJuego);
 
-            let imgWidth = pdfWidth;
-            let imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+            // ------------------------------------------------
+            // PÁGINA 2: LA SOLUCIÓN (OPCIONAL)
+            // ------------------------------------------------
+            if (chkIncluirSolucion.checked) {
+                // Modificar interfaz temporalmente
+                resaltarRespuestas(true); // Pintar respuestas
+                const tituloOriginal = displayTitulo.innerText;
+                displayTitulo.innerText += " (SOLUCIÓN)"; // Cambiar título
+                
+                // Tomar foto
+                const canvasSolucion = await html2canvas(hojaPapel, { scale: 2 });
+                const imgSolucion = canvasSolucion.toDataURL('image/png');
 
-            // Si la imagen es más alta que el espacio disponible, escalar proporcionalmente
-            if (imgHeight > availableHeight) {
-                const scale = availableHeight / imgHeight;
-                imgWidth = imgWidth * scale;
-                imgHeight = imgHeight * scale;
+                // Restaurar título inmediatamente
+                displayTitulo.innerText = tituloOriginal;
+
+                // Agregar nueva página al PDF
+                pdf.addPage();
+                const propsSol = pdf.getImageProperties(imgSolucion);
+                const heightSol = (propsSol.height * pdfWidth) / propsSol.width;
+                pdf.addImage(imgSolucion, 'PNG', 0, 10, pdfWidth, heightSol);
             }
 
-            // 3. Añadir imagen
-            pdf.addImage(imgData, 'PNG', 0, marginTop, imgWidth, imgHeight);
-            
-            // 4. Descargar
+            // Restaurar estado visual original del usuario
+            resaltarRespuestas(estadoUsuarioSolucion);
+
+            // Descargar archivo
             pdf.save(`${inputTitulo.value || 'sopa_de_letras'}.pdf`);
 
         } catch (error) {
-            console.error("Error al generar PDF", error);
-            alert("Hubo un error al generar el PDF.");
+            console.error(error);
+            alert("Error al generar PDF");
         } finally {
             btnDescargar.innerText = textoOriginal;
             btnDescargar.disabled = false;

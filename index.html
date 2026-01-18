@@ -17,7 +17,10 @@
     <div class="app-container">
         
         <aside class="sidebar">
-            <h1>Sopa de Letras 🧩</h1>
+            <div class="header-tools">
+                <h1>Sopa de Letras 🧩</h1>
+                <button id="btn-tema" class="btn-icon" title="Cambiar Tema">🌙</button>
+            </div>
             <p>Configura tu juego y descárgalo.</p>
 
             <div class="form-group">
@@ -30,19 +33,43 @@
                 <textarea id="palabras" rows="8" placeholder="PERRO&#10;GATO&#10;AVION&#10;..."></textarea>
             </div>
 
-            <div class="form-group-inline">
-                <div>
-                    <label>Filas</label>
-                    <input type="number" id="filas" value="15" min="10" max="25">
-                </div>
-                <div>
-                    <label>Columnas</label>
-                    <input type="number" id="cols" value="15" min="10" max="25">
+            <div>
+                <button id="btn-eliminar-texto" class="btn-secondary btn-sm">🗑️ Limpiar Texto</button>
+            </div>
+
+            <div class="form-group">
+                <label>Dificultad</label>
+                <div class="radio-group form-group">
+                    <label><input type="radio" name="dificultad" value="facil" checked> Fácil (horizontal y vertical)</label>
+                    <label><input type="radio" name="dificultad" value="medio"> Medio (añade diagonales)</label>
+                    <label><input type="radio" name="dificultad" value="dificil"> Difícil (todas las direcciones)</label>
                 </div>
             </div>
 
-            <button id="btn-generar" class="btn-primary">⚡ Generar Sopa</button>
-            <button id="btn-descargar" class="btn-secondary" disabled>📄 Descargar PDF</button>
+            <div class="form-group-inline">
+                <div class="form-group-inline-option">
+                    <label>Filas</label>
+                    <input type="number" id="filas" value="20" min="10" max="25">
+                </div>
+                <div class="form-group-inline-option">
+                    <label>Columnas</label>
+                    <input type="number" id="cols" value="20" min="10" max="25">
+                </div>
+            </div>
+
+            <div class="button-group" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button id="btn-generar" class="btn-primary" style="flex: 1;">⚡ Generar</button>
+                <button id="btn-solucion" class="btn-secondary" style="background-color: #9b59b6;" disabled>👁️ Solución</button>
+            </div>
+            
+            <div style="margin-top: 15px; margin-bottom: 5px;">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="chk-incluir-solucion">
+                    <span style="font-weight: normal; font-size: 0.9rem;">Incluir hoja de respuestas</span>
+                </label>
+            </div>
+
+            <button id="btn-descargar" class="btn-secondary" style="width: 100%;" disabled>📄 Descargar PDF</button>
         </aside>
 
         <main class="preview-area">
