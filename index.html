@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Sopa de Letras</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <aside class="sidebar">
+            <h1>Sopa de Letras 🧩</h1>
+            <p>Configura tu juego y descárgalo.</p>
+
+            <div class="form-group">
+                <label for="titulo">Título del Juego</label>
+                <input type="text" id="titulo" placeholder="Ej: Animales de la Selva" value="Mi Sopa de Letras">
+            </div>
+
+            <div class="form-group">
+                <label for="palabras">Lista de Palabras (separadas por comas o enter)</label>
+                <textarea id="palabras" rows="8" placeholder="PERRO&#10;GATO&#10;AVION&#10;..."></textarea>
+            </div>
+
+            <div class="form-group-inline">
+                <div>
+                    <label>Filas</label>
+                    <input type="number" id="filas" value="15" min="10" max="25">
+                </div>
+                <div>
+                    <label>Columnas</label>
+                    <input type="number" id="cols" value="15" min="10" max="25">
+                </div>
+            </div>
+
+            <button id="btn-generar" class="btn-primary">⚡ Generar Sopa</button>
+            <button id="btn-descargar" class="btn-secondary" disabled>📄 Descargar PDF</button>
+        </aside>
+
+        <main class="preview-area">
+            <div id="hoja-papel" class="sheet">
+                
+                <h2 id="display-titulo">Mi Sopa de Letras</h2>
+                
+                <div id="grid-container" class="grid-container"></div>
+
+                <div class="word-bank">
+                    <h3>Palabras a buscar:</h3>
+                    <ul id="lista-palabras"></ul>
+                </div>
+                
+                <div class="footer-sheet">
+                    <small>Generado con mi App de Sopa de Letras</small>
+                </div>
+            </div>
+        </main>
+
+    </div>
+
+    <script src="generator.js"></script> <script src="app.js"></script> </body>
+</html>

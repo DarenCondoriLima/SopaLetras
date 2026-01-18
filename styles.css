@@ -1,0 +1,243 @@
+/* --- RESET BÁSICO Y FUENTES --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Poppins', sans-serif; /* Fuente general para la interfaz */
+    background-color: #f0f2f5;
+    color: #333;
+    height: 100vh;
+    overflow: hidden; /* Evita scroll en el body, lo manejamos dentro de las áreas */
+}
+
+/* --- LAYOUT PRINCIPAL (Dos columnas) --- */
+.app-container {
+    display: flex;
+    height: 100vh;
+}
+
+/* --- SIDEBAR (Panel de Control - Izquierda) --- */
+.sidebar {
+    width: 350px;
+    background-color: #ffffff;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+    overflow-y: auto; /* Scroll si la pantalla es muy bajita */
+    z-index: 10;
+}
+
+.sidebar h1 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+}
+
+.sidebar p {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: -1rem;
+}
+
+/* Inputs y Formularios */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group-inline {
+    display: flex;
+    gap: 1rem;
+}
+
+.form-group-inline > div {
+    flex: 1;
+}
+
+label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #444;
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    transition: border-color 0.2s;
+}
+
+textarea {
+    resize: vertical; /* Solo permitir cambiar altura */
+    font-family: 'Roboto Mono', monospace; /* Para que las palabras se alineen */
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+/* Botones */
+button {
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.btn-primary {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #357abd;
+}
+
+.btn-secondary {
+    background-color: #2ecc71;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #27ae60;
+}
+
+.btn-secondary:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* --- ÁREA DE VISTA PREVIA (Derecha) --- */
+.preview-area {
+    flex: 1; /* Ocupa el resto del espacio */
+    background-color: #e9ecef;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Alinear arriba para scrollear si es largo */
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* --- LA HOJA DE PAPEL (Lo que se imprime) --- */
+.sheet {
+    background-color: white;
+    width: 100%;
+    max-width: 210mm; /* Ancho A4 aproximado */
+    min-height: 297mm; /* Alto A4 aproximado */
+    padding: 40px; /* Margen de impresión */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Importante: aseguramos que el texto sea negro puro para impresión */
+    color: black; 
+}
+
+.sheet h2 {
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #333;
+    padding-bottom: 10px;
+    width: 100%;
+    text-align: center;
+}
+
+/* --- LA CUADRÍCULA (Grid) --- */
+.grid-container {
+    display: grid;
+    /* Las columnas y filas se definen en JS, aquí solo estilos base */
+    gap: 1px; /* Espacio entre celdas */
+    border: 2px solid #333; /* Borde exterior grueso */
+    background-color: #333; /* Color de las líneas del gap */
+    margin-bottom: 30px;
+    max-width: 100%;
+}
+
+.grid-cell {
+    background-color: white; /* Fondo blanco de la celda */
+    aspect-ratio: 1 / 1; /* Mantiene la celda cuadrada */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Roboto Mono', monospace; /* Fuente monoespaciada */
+    font-weight: 700;
+    font-size: 1.1rem; /* Ajustable según preferencia */
+    text-transform: uppercase;
+}
+
+/* --- LISTA DE PALABRAS --- */
+.word-bank {
+    width: 100%;
+    text-align: left;
+}
+
+.word-bank h3 {
+    font-size: 1rem;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
+}
+
+#lista-palabras {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 columnas de palabras */
+    gap: 10px;
+}
+
+#lista-palabras li {
+    font-size: 0.9rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Footer de la hoja */
+.footer-sheet {
+    margin-top: auto; /* Empuja el footer al final de la hoja */
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    width: 100%;
+    text-align: center;
+    color: #999;
+    font-size: 0.8rem;
+}
+
+/* --- RESPONSIVE (Móvil) --- */
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+        height: auto;
+        overflow: auto;
+    }
+
+    .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 1.5rem;
+        box-shadow: none;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .preview-area {
+        padding: 1rem;
+        height: auto;
+    }
+    
+    .sheet {
+        padding: 20px; /* Menos padding en móvil para aprovechar espacio */
+        zoom: 0.8; /* Alejar un poco para verla completa */
+    }
+}
