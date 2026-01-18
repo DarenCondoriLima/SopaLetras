@@ -101,10 +101,21 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Calcular proporciones para que la imagen encaje bien
             const imgProps = pdf.getImageProperties(imgData);
-            const imgHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            const marginTop = 10; // Margen superior de 10mm
+            const availableHeight = pdfHeight - marginTop - 10; // Reservar también 10mm de margen inferior
+
+            let imgWidth = pdfWidth;
+            let imgHeight = (imgProps.height * imgWidth) / imgProps.width;
+
+            // Si la imagen es más alta que el espacio disponible, escalar proporcionalmente
+            if (imgHeight > availableHeight) {
+                const scale = availableHeight / imgHeight;
+                imgWidth = imgWidth * scale;
+                imgHeight = imgHeight * scale;
+            }
 
             // 3. Añadir imagen
-            pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, imgHeight); // Margen superior de 10mm
+            pdf.addImage(imgData, 'PNG', 0, marginTop, imgWidth, imgHeight);
             
             // 4. Descargar
             pdf.save(`${inputTitulo.value || 'sopa_de_letras'}.pdf`);

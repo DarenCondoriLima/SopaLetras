@@ -31,7 +31,7 @@ class GeneradorSopa {
         
         // Ordenamos de mayor a menor longitud (truco: las largas son más difíciles de ubicar, así que van primero)
         const palabrasOrdenadas = listaPalabras
-            .map(p => p.toUpperCase().replace(/\s/g, '')) // Limpiar espacios y mayúsculas
+            .map(p => p.toUpperCase().replace(/\s/g, '')) // Convertir a mayúsculas y eliminar espacios
             .sort((a, b) => b.length - a.length);
 
         palabrasOrdenadas.forEach(palabra => {

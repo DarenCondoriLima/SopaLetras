@@ -238,6 +238,7 @@ button {
     
     .sheet {
         padding: 20px; /* Menos padding en móvil para aprovechar espacio */
-        zoom: 0.8; /* Alejar un poco para verla completa */
+        transform: scale(0.8); /* Alejar un poco para verla completa */
+        transform-origin: top center;
     }
 }
