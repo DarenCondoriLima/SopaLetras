@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador de Sopa de Letras</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="styles.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -18,10 +18,10 @@
         
         <aside class="sidebar">
             <div class="header-tools">
-                <h1>Sopa de Letras 🧩</h1>
+                <h1>🧩 Sopa de Letras</h1>
                 <button id="btn-tema" class="btn-icon" title="Cambiar Tema">🌙</button>
             </div>
-            <p>Configura tu juego y descárgalo.</p>
+            <p>Configura tu juego y descárgalo en PDF.</p>
 
             <div class="form-group">
                 <label for="titulo">Título del Juego</label>
@@ -29,20 +29,29 @@
             </div>
 
             <div class="form-group">
-                <label for="palabras">Lista de Palabras (separadas por comas o enter)</label>
-                <textarea id="palabras" rows="8" placeholder="PERRO&#10;GATO&#10;AVION&#10;..."></textarea>
+                <label for="palabras">Lista de Palabras</label>
+                <textarea id="palabras" placeholder="Ingresa las palabras separadas por comas o enter:&#10;&#10;PERRO&#10;GATO&#10;AVION"></textarea>
             </div>
 
             <div>
-                <button id="btn-eliminar-texto" class="btn-secondary btn-sm">🗑️ Limpiar Texto</button>
+                <button id="btn-eliminar-texto" class="btn-sm">🗑️ Limpiar</button>
             </div>
 
             <div class="form-group">
                 <label>Dificultad</label>
-                <div class="radio-group form-group">
-                    <label><input type="radio" name="dificultad" value="facil" checked> Fácil (horizontal y vertical)</label>
-                    <label><input type="radio" name="dificultad" value="medio"> Medio (añade diagonales)</label>
-                    <label><input type="radio" name="dificultad" value="dificil"> Difícil (todas las direcciones)</label>
+                <div class="radio-group">
+                    <label>
+                        <input type="radio" name="dificultad" value="facil" checked>
+                        Fácil (horizontal y vertical)
+                    </label>
+                    <label>
+                        <input type="radio" name="dificultad" value="medio">
+                        Medio (añade diagonales)
+                    </label>
+                    <label>
+                        <input type="radio" name="dificultad" value="dificil">
+                        Difícil (todas las direcciones)
+                    </label>
                 </div>
             </div>
 
@@ -57,19 +66,17 @@
                 </div>
             </div>
 
-            <div class="button-group" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <button id="btn-generar" class="btn-primary" style="flex: 1;">⚡ Generar</button>
-                <button id="btn-solucion" class="btn-secondary" style="background-color: #9b59b6;" disabled>👁️ Solución</button>
+            <div class="button-group">
+                <button id="btn-generar" class="btn-primary">⚡ Generar</button>
+                <button id="btn-solucion" class="btn-secondary purple" disabled>👁️ Ver</button>
             </div>
             
-            <div style="margin-top: 15px; margin-bottom: 5px;">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                    <input type="checkbox" id="chk-incluir-solucion">
-                    <span style="font-weight: normal; font-size: 0.9rem;">Incluir hoja de respuestas</span>
-                </label>
-            </div>
+            <label class="checkbox-label">
+                <input type="checkbox" id="chk-incluir-solucion">
+                <span>Incluir hoja de respuestas en PDF</span>
+            </label>
 
-            <button id="btn-descargar" class="btn-secondary" style="width: 100%;" disabled>📄 Descargar PDF</button>
+            <button id="btn-descargar" class="btn-secondary" disabled>📄 Descargar PDF</button>
         </aside>
 
         <main class="preview-area">
@@ -80,18 +87,17 @@
                 <div id="grid-container" class="grid-container"></div>
 
                 <div class="word-bank">
-                    <h3>Palabras a buscar:</h3>
+                    <h3>🔍 Palabras a buscar:</h3>
                     <ul id="lista-palabras"></ul>
                 </div>
                 
                 <div class="footer-sheet">
-                    <small>Generado con mi App de Sopa de Letras</small>
+                    <small>✨ Generado con Sopa de Letras App</small>
                 </div>
             </div>
         </main>
 
     </div>
-
     <script src="generator.js"></script>
     <script src="app.js"></script>
 </body>

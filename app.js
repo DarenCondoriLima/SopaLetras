@@ -1,13 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
-    
-    // Referencias DOM
     const btnGenerar = document.getElementById('btn-generar');
     const btnDescargar = document.getElementById('btn-descargar');
-    const btnSolucion = document.getElementById('btn-solucion'); // Nuevo botón
+    const btnSolucion = document.getElementById('btn-solucion');
     const btnEliminar = document.getElementById('btn-eliminar-texto');
     const btnTema = document.getElementById('btn-tema');
     
-    // Inputs y áreas
     const inputPalabras = document.getElementById('palabras');
     const inputTitulo = document.getElementById('titulo');
     const displayTitulo = document.getElementById('display-titulo');
@@ -18,15 +15,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputCols = document.getElementById('cols');
     const radiosDificultad = document.getElementsByName('dificultad');
 
-    // ESTADO DE LA APLICACIÓN
-    let datosSolucion = null; // Aquí guardaremos las coordenadas
+    let datosSolucion = null;
     let mostrandoSolucion = false;
 
-    // --- MODO OSCURO (Igual que antes) ---
+    // Tema
     if (localStorage.getItem('theme') === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
         btnTema.innerText = '☀️';
     }
+    
     btnTema.addEventListener('click', () => {
         const isDark = document.body.getAttribute('data-theme') === 'dark';
         if (isDark) {
@@ -41,10 +38,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     btnEliminar.addEventListener('click', () => {
-        if(confirm("¿Borrar lista?")) inputPalabras.value = '';
+        if(confirm("¿Borrar toda la lista de palabras?")) inputPalabras.value = '';
     });
 
-    // --- GENERAR ---
+    // Generar
     btnGenerar.addEventListener('click', () => {
         const filas = parseInt(inputFilas.value);
         const cols = parseInt(inputCols.value);
@@ -57,63 +54,61 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const listaPalabras = textoRaw.split(/[\n,]+/).map(p => p.trim()).filter(p => p.length > 0);
 
-        if (listaPalabras.length === 0) { alert("Ingresa palabras"); return; }
+        if (listaPalabras.length === 0) { 
+            alert("⚠️ Por favor ingresa al menos una palabra"); 
+            return; 
+        }
 
-        displayTitulo.innerText = inputTitulo.value || "Sopa de Letras";
+        displayTitulo.innerText = inputTitulo.value || "Mi Sopa de Letras";
 
         const generador = new GeneradorSopa(filas, cols);
         const resultado = generador.generar(listaPalabras, dificultad);
 
-        // GUARDAMOS EL RESULTADO EN LA VARIABLE GLOBAL
         datosSolucion = resultado;
-        mostrandoSolucion = false; // Resetear estado visual
-        btnSolucion.innerText = "👁️ Solución";
+        mostrandoSolucion = false;
+        btnSolucion.innerText = "👁️ Ver";
 
         renderizarGrilla(resultado.grilla, filas, cols);
         renderizarLista(resultado.colocadas);
         
-        // Habilitar botones
         btnDescargar.disabled = false;
         btnSolucion.disabled = false;
 
-        if (resultado.omitidas.length > 0) alert(`No cupieron: ${resultado.omitidas.join(", ")}`);
+        if (resultado.omitidas.length > 0) {
+            alert(`⚠️ No cupieron las siguientes palabras:\n${resultado.omitidas.join(", ")}`);
+        }
     });
 
-    // --- TOGGLE VER SOLUCIÓN ---
+    // Toggle solución
     btnSolucion.addEventListener('click', () => {
         if (!datosSolucion) return;
 
         mostrandoSolucion = !mostrandoSolucion;
         
         if (mostrandoSolucion) {
-            btnSolucion.innerText = "Ocultar";
+            btnSolucion.innerText = "❌ Ocultar";
             resaltarRespuestas(true);
         } else {
-            btnSolucion.innerText = "👁️ Solución";
+            btnSolucion.innerText = "👁️ Ver";
             resaltarRespuestas(false);
         }
     });
 
-    // Función auxiliar para pintar/despintar celdas
     function resaltarRespuestas(activar) {
         const celdas = gridContainer.children;
         const cols = parseInt(inputCols.value);
         
-        // Limpiar todo primero
         if (!activar) {
             for (let celda of celdas) celda.classList.remove('highlight');
             return;
         }
 
-        // Recorrer cada palabra solucionada y calcular sus celdas
         Object.keys(datosSolucion.soluciones).forEach(palabra => {
             const { fila, col, dir } = datosSolucion.soluciones[palabra];
             
             for (let i = 0; i < palabra.length; i++) {
                 const fActual = fila + (dir.y * i);
                 const cActual = col + (dir.x * i);
-                
-                // Calcular índice lineal en el grid (Fila * TotalColumnas + Columna)
                 const index = (fActual * cols) + cActual;
                 
                 if (celdas[index]) {
@@ -123,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- RENDERIZADO ---
     function renderizarGrilla(matriz, filas, cols) {
         gridContainer.innerHTML = ''; 
         gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
@@ -147,67 +141,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- DESCARGAR PDF (CONDICIONAL) ---
+    // Descargar PDF
     btnDescargar.addEventListener('click', async () => {
         const { jsPDF } = window.jspdf;
-        const chkIncluirSolucion = document.getElementById('chk-incluir-solucion'); // Referencia al checkbox
+        const chkIncluirSolucion = document.getElementById('chk-incluir-solucion');
         
         const textoOriginal = btnDescargar.innerText;
-        btnDescargar.innerText = "Generando PDF...";
+        btnDescargar.innerText = "⏳ Generando...";
         btnDescargar.disabled = true;
 
         try {
-            // Guardar estado visual actual (¿usuario estaba viendo respuestas?)
             const estadoUsuarioSolucion = mostrandoSolucion;
 
-            // ------------------------------------------------
-            // PÁGINA 1: EL JUEGO (SIEMPRE SE GENERA)
-            // ------------------------------------------------
-            resaltarRespuestas(false); // Limpiamos visualmente para la foto
+            // Página 1: El juego
+            resaltarRespuestas(false);
             const canvasJuego = await html2canvas(hojaPapel, { scale: 2 });
             const imgJuego = canvasJuego.toDataURL('image/png');
 
-            // Crear el documento PDF
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             
-            // Agregar imagen del juego
             const propsJuego = pdf.getImageProperties(imgJuego);
             const heightJuego = (propsJuego.height * pdfWidth) / propsJuego.width;
             pdf.addImage(imgJuego, 'PNG', 0, 10, pdfWidth, heightJuego);
 
-            // ------------------------------------------------
-            // PÁGINA 2: LA SOLUCIÓN (OPCIONAL)
-            // ------------------------------------------------
+            // Página 2: Solución (opcional)
             if (chkIncluirSolucion.checked) {
-                // Modificar interfaz temporalmente
-                resaltarRespuestas(true); // Pintar respuestas
+                resaltarRespuestas(true);
                 const tituloOriginal = displayTitulo.innerText;
-                displayTitulo.innerText += " (SOLUCIÓN)"; // Cambiar título
+                displayTitulo.innerText += " (SOLUCIÓN)";
                 
-                // Tomar foto
                 const canvasSolucion = await html2canvas(hojaPapel, { scale: 2 });
                 const imgSolucion = canvasSolucion.toDataURL('image/png');
 
-                // Restaurar título inmediatamente
                 displayTitulo.innerText = tituloOriginal;
 
-                // Agregar nueva página al PDF
                 pdf.addPage();
                 const propsSol = pdf.getImageProperties(imgSolucion);
                 const heightSol = (propsSol.height * pdfWidth) / propsSol.width;
                 pdf.addImage(imgSolucion, 'PNG', 0, 10, pdfWidth, heightSol);
             }
 
-            // Restaurar estado visual original del usuario
             resaltarRespuestas(estadoUsuarioSolucion);
 
-            // Descargar archivo
             pdf.save(`${inputTitulo.value || 'sopa_de_letras'}.pdf`);
 
         } catch (error) {
             console.error(error);
-            alert("Error al generar PDF");
+            alert("❌ Error al generar el PDF");
         } finally {
             btnDescargar.innerText = textoOriginal;
             btnDescargar.disabled = false;

@@ -1,3 +1,5 @@
+
+// --- GENERADOR DE SOPA ---
 class GeneradorSopa {
     constructor(filas = 20, columnas = 20) {
         this.filas = filas;
@@ -6,7 +8,7 @@ class GeneradorSopa {
         this.soluciones = {};
         this.palabrasColocadas = [];
         this.palabrasOmitidas = [];
-        this.direcciones = []; // Se definirán al generar según dificultad
+        this.direcciones = [];
     }
 
     inicializarGrilla() {
@@ -16,14 +18,11 @@ class GeneradorSopa {
         this.palabrasOmitidas = [];
     }
 
-    // Definir direcciones permitidas según dificultad
     configurarDificultad(nivel) {
         const horizontal = { x: 1, y: 0 };
         const vertical = { x: 0, y: 1 };
         const diagonalAbajo = { x: 1, y: 1 };
         const diagonalArriba = { x: 1, y: -1 };
-        
-        // Invertidas (para nivel difícil)
         const horizontalInv = { x: -1, y: 0 };
         const verticalInv = { x: 0, y: -1 };
         const diagonalAbajoInv = { x: -1, y: 1 };
@@ -31,15 +30,12 @@ class GeneradorSopa {
 
         switch (nivel) {
             case 'facil':
-                // Solo derecha y abajo
                 this.direcciones = [horizontal, vertical];
                 break;
             case 'medio':
-                // Añade diagonales
                 this.direcciones = [horizontal, vertical, diagonalAbajo, diagonalArriba];
                 break;
             case 'dificil':
-                // Todo vale (incluyendo escribir al revés)
                 this.direcciones = [
                     horizontal, vertical, diagonalAbajo, diagonalArriba,
                     horizontalInv, verticalInv, diagonalAbajoInv, diagonalArribaInv
@@ -54,9 +50,8 @@ class GeneradorSopa {
         this.inicializarGrilla();
         this.configurarDificultad(dificultad);
         
-        // Ordenar palabras (largas primero)
         const palabrasOrdenadas = listaPalabras
-            .map(p => p.toUpperCase().replace(/[^A-ZÑ]/g, '')) // Limpiar caracteres raros
+            .map(p => p.toUpperCase().replace(/[^A-ZÑ]/g, ''))
             .sort((a, b) => b.length - a.length);
 
         palabrasOrdenadas.forEach(palabra => {
@@ -78,7 +73,7 @@ class GeneradorSopa {
 
     intentarColocarPalabra(palabra) {
         let intentos = 0;
-        const maxIntentos = 150; // Aumentamos intentos para dificultad alta
+        const maxIntentos = 150;
 
         while (intentos < maxIntentos) {
             const dir = this.direcciones[Math.floor(Math.random() * this.direcciones.length)];
