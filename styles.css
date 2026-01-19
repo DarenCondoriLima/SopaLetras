@@ -40,7 +40,7 @@ body {
     /* CAMBIO 1: En PC usamos altura fija, en móvil (media query) lo anularemos */
     height: 100vh; 
     overflow: hidden; 
-}
+} 
 
 .app-container { display: flex; height: 100vh; }
 
@@ -54,6 +54,44 @@ body {
     overflow-y: auto;
     border-right: 1px solid var(--border-color);
     z-index: 10;
+}
+
+/* Pestañas de Modo */
+.mode-tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 10px;
+    background: var(--input-border);
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 8px;
+    font-size: 0.85rem;
+    background: transparent;
+    color: var(--text-secondary);
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.tab-btn.active {
+    background: var(--bg-sidebar);
+    color: var(--accent-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Utilidad para ocultar */
+.hidden {
+    display: none !important;
+}
+
+.info-box {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: -5px;
+    margin-bottom: 10px;
 }
 
 /* Header Tools */
@@ -102,9 +140,22 @@ button { border: none; font-weight: 600; cursor: pointer; transition: 0.2s; bord
     padding: 2rem;
     overflow: auto; 
     display: flex;
+    flex-direction: column;
+        justify-content: flex-start;
     /* En PC centramos la hoja, en móvil (abajo) lo cambiaremos */
-    justify-content: center; 
+    
     align-items: flex-start;
+}
+
+/* Placeholder inicial */
+.sheet-placeholder {
+    text-align: center;
+    color: #999;
+    border: 2px dashed #ddd;
+    padding: 40px;
+    border-radius: 10px;
+    max-width: 400px;
+    margin: 50px auto;
 }
 
 /* --- HOJA DE PAPEL --- */
@@ -119,6 +170,9 @@ button { border: none; font-weight: 600; cursor: pointer; transition: 0.2s; bord
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     color: #1e293b;
     display: flex; flex-direction: column; align-items: center;
+    margin-bottom: 40px !important;
+    margin-left: auto; 
+    margin-right: auto;
     /* Evita que la hoja se encoja dentro del flex */
     flex-shrink: 0; 
 }

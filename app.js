@@ -1,60 +1,60 @@
 document.addEventListener('DOMContentLoaded', () => {
     
-    // Referencias DOM
+    // --- REFERENCIAS DE MODO ---
+    const tabSingle = document.getElementById('tab-single');
+    const tabMulti = document.getElementById('tab-multi');
+    const containerSingle = document.getElementById('container-single');
+    const containerMulti = document.getElementById('container-multi');
+    const modeDesc = document.getElementById('mode-desc');
+
+    // Inputs Single
+    const inputTitulo = document.getElementById('titulo');
+    const inputPalabras = document.getElementById('palabras');
+    
+    // Inputs Multi
+    const inputPalabrasMulti = document.getElementById('palabras-multi');
+
+    // Botones Comunes
     const btnGenerar = document.getElementById('btn-generar');
     const btnDescargar = document.getElementById('btn-descargar');
     const btnSolucion = document.getElementById('btn-solucion');
     const btnEliminar = document.getElementById('btn-eliminar-texto');
-    const btnEjemplo = document.getElementById('btn-ejemplo'); // Nuevo
-    const btnVerMovil = document.getElementById('btn-ver-movil'); // Nuevo
+    const btnEjemplo = document.getElementById('btn-ejemplo');
+    const btnVerMovil = document.getElementById('btn-ver-movil');
     const btnTema = document.getElementById('btn-tema');
     
-    const inputPalabras = document.getElementById('palabras');
-    const inputTitulo = document.getElementById('titulo');
-    const displayTitulo = document.getElementById('display-titulo');
-    const gridContainer = document.getElementById('grid-container');
-    const listaPalabrasUl = document.getElementById('lista-palabras');
-    const hojaPapel = document.getElementById('hoja-papel');
     const previewArea = document.getElementById('preview-area');
-    
     const inputFilas = document.getElementById('filas');
     const inputCols = document.getElementById('cols');
     const radiosDificultad = document.getElementsByName('dificultad');
 
-    let datosSolucion = null;
+    // ESTADO
+    let currentMode = 'single'; // 'single' o 'multi'
+    let juegosGenerados = []; 
     let mostrandoSolucion = false;
 
-    // --- 1. BOTÓN EJEMPLO AREQUIPA ---
-    btnEjemplo.addEventListener('click', () => {
-        const lugaresArequipa = 
-`MISTI
-CHACHANI
-PICHUPICHU
-COLCA
-YANAHUARA
-SABANDIA
-MONASTERIO
-CATEDRAL
-CLAUSTROS
-MOLINO
-CAMANA
-MOLLENDO
-COTAHUASI
-SIGUAS`;
-        
-        inputPalabras.value = lugaresArequipa;
-        inputTitulo.value = "Lugares de Arequipa";
-        // Efecto visual de focus
-        inputPalabras.focus();
-    });
+    // --- CAMBIO DE MODO ---
+    tabSingle.addEventListener('click', () => setMode('single'));
+    tabMulti.addEventListener('click', () => setMode('multi'));
 
-    // --- 2. BOTÓN IR A SOPA (MÓVIL) ---
-    btnVerMovil.addEventListener('click', () => {
-        // Hace scroll suave hacia la hoja de papel
-        previewArea.scrollIntoView({ behavior: 'smooth' });
-    });
+    function setMode(mode) {
+        currentMode = mode;
+        if (mode === 'single') {
+            tabSingle.classList.add('active');
+            tabMulti.classList.remove('active');
+            containerSingle.classList.remove('hidden');
+            containerMulti.classList.add('hidden');
+            modeDesc.innerText = "Configura un juego único.";
+        } else {
+            tabSingle.classList.remove('active');
+            tabMulti.classList.add('active');
+            containerSingle.classList.add('hidden');
+            containerMulti.classList.remove('hidden');
+            modeDesc.innerText = "Pega una lista masiva separada por espacios.";
+        }
+    }
 
-    // --- TEMA CLARO/OSCURO ---
+    // --- TEMAS ---
     if (localStorage.getItem('theme') === 'dark') {
         document.body.setAttribute('data-theme', 'dark');
         btnTema.innerText = '☀️';
@@ -63,97 +63,194 @@ SIGUAS`;
         const isDark = document.body.getAttribute('data-theme') === 'dark';
         if (isDark) {
             document.body.removeAttribute('data-theme');
-            btnTema.innerText = '🌙';
             localStorage.setItem('theme', 'light');
+            btnTema.innerText = '🌙';
         } else {
             document.body.setAttribute('data-theme', 'dark');
-            btnTema.innerText = '☀️';
             localStorage.setItem('theme', 'dark');
+            btnTema.innerText = '☀️';
         }
     });
 
+    // --- BOTONES AUXILIARES ---
     btnEliminar.addEventListener('click', () => {
-        if(confirm("¿Borrar toda la lista?")) inputPalabras.value = '';
+        if(confirm("¿Borrar contenido actual?")) {
+            if (currentMode === 'single') {
+                inputPalabras.value = '';
+                inputTitulo.value = '';
+            } else {
+                inputPalabrasMulti.value = '';
+            }
+        }
     });
 
-    // --- GENERAR ---
+    btnEjemplo.addEventListener('click', () => {
+        if (currentMode === 'single') {
+            inputTitulo.value = "Lugares de Arequipa";
+            inputPalabras.value = "MISTI\nCHACHANI\nYANAHUARA\nCOLCA\nSABANDIA\nMONASTERIO";
+        } else {
+            inputPalabrasMulti.value = 
+`Lugares de Arequipa
+MISTI
+CHACHANI
+YANAHUARA
+
+Animales del Peru
+CONDOR
+VICUÑA
+LLAMA
+
+Frutas
+LUCUMA
+CHIRIMOYA
+AGUAYMANTO`;
+        }
+    });
+
+    btnVerMovil.addEventListener('click', () => {
+        previewArea.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // --- LÓGICA PRINCIPAL DE GENERACIÓN ---
     btnGenerar.addEventListener('click', () => {
         const filas = parseInt(inputFilas.value);
         const cols = parseInt(inputCols.value);
-        const textoRaw = inputPalabras.value;
         
         let dificultad = 'facil';
         for (const radio of radiosDificultad) { if (radio.checked) { dificultad = radio.value; break; } }
-        
-        const listaPalabras = textoRaw.split(/[\n,]+/).map(p => p.trim()).filter(p => p.length > 0);
 
-        if (listaPalabras.length === 0) { alert("Ingresa palabras primero."); return; }
+        // 1. Preparar datos según modo
+        let juegosAProcesar = [];
 
-        displayTitulo.innerText = inputTitulo.value || "Sopa de Letras";
+        if (currentMode === 'single') {
+            const rawTxt = inputPalabras.value;
+            const lista = rawTxt.split(/[\n,]+/).map(p => p.trim()).filter(p => p.length > 0);
+            if (lista.length === 0) { alert("Ingresa palabras."); return; }
+            
+            juegosAProcesar.push({
+                titulo: inputTitulo.value || "Sopa de Letras",
+                palabras: lista
+            });
+        } else {
+            // Modo Multi
+            juegosAProcesar = parsearInputMulti(inputPalabrasMulti.value);
+            if (juegosAProcesar.length === 0) { alert("Formato incorrecto en lista masiva."); return; }
+        }
 
-        const generador = new GeneradorSopa(filas, cols);
-        const resultado = generador.generar(listaPalabras, dificultad);
+        // 2. Generar
+        juegosGenerados = [];
+        previewArea.innerHTML = ''; // Limpiar
 
-        datosSolucion = resultado;
+        juegosAProcesar.forEach((juegoData, index) => {
+            const generador = new GeneradorSopa(filas, cols);
+            const resultado = generador.generar(juegoData.palabras, dificultad);
+            
+            // Si hay omitidas en modo single, avisar. En multi, solo console.log para no spamear alertas
+            if (currentMode === 'single' && resultado.omitidas.length > 0) {
+                alert(`No cupieron: ${resultado.omitidas.join(", ")}`);
+            }
+
+            const idUnico = `juego-${index}`;
+            juegosGenerados.push({
+                id: idUnico,
+                titulo: juegoData.titulo,
+                data: resultado,
+                filas, cols
+            });
+
+            crearHojaHTML(idUnico, juegoData.titulo, resultado, filas, cols);
+        });
+
+        // 3. Resetear UI
         mostrandoSolucion = false;
         btnSolucion.innerText = "👁️ Ver";
-
-        renderizarGrilla(resultado.grilla, filas, cols);
-        renderizarLista(resultado.colocadas);
-        
         btnDescargar.disabled = false;
         btnSolucion.disabled = false;
-        btnVerMovil.disabled = false; // Habilitar botón móvil
-
-        if (resultado.omitidas.length > 0) alert(`No cupieron: ${resultado.omitidas.join(", ")}`);
+        btnVerMovil.disabled = false;
     });
 
-    // --- RENDERIZADO ---
-    function renderizarGrilla(matriz, filas, cols) {
-        gridContainer.innerHTML = ''; 
-        gridContainer.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-        
-        matriz.forEach(fila => {
+    function parsearInputMulti(texto) {
+        const normalizado = texto.replace(/\r\n/g, "\n");
+        const bloques = normalizado.split(/\n\s*\n/);
+        const lista = [];
+        bloques.forEach(bloque => {
+            const lineas = bloque.trim().split('\n').map(l => l.trim()).filter(l => l !== '');
+            if (lineas.length < 2) return;
+            lista.push({ titulo: lineas[0], palabras: lineas.slice(1) });
+        });
+        return lista;
+    }
+
+    // --- CREACIÓN DE DOM ---
+    function crearHojaHTML(id, titulo, resultado, filas, cols) {
+        const sheet = document.createElement('div');
+        sheet.className = 'sheet';
+        sheet.id = `sheet-${id}`;
+
+        const h2 = document.createElement('h2');
+        h2.innerText = titulo;
+        h2.id = `title-${id}`;
+
+        const grid = document.createElement('div');
+        grid.className = 'grid-container';
+        grid.id = `grid-${id}`;
+        grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+
+        resultado.grilla.forEach(fila => {
             fila.forEach(letra => {
                 const celda = document.createElement('div');
                 celda.className = 'grid-cell';
                 celda.innerText = letra;
-                gridContainer.appendChild(celda);
+                grid.appendChild(celda);
             });
         });
-    }
 
-    function renderizarLista(palabras) {
-        listaPalabrasUl.innerHTML = '';
-        palabras.forEach(palabra => {
+        const bank = document.createElement('div');
+        bank.className = 'word-bank';
+        bank.innerHTML = `<h3>🔍 Palabras a buscar:</h3>`;
+        const ul = document.createElement('ul');
+        resultado.colocadas.forEach(p => {
             const li = document.createElement('li');
-            li.innerText = palabra;
-            listaPalabrasUl.appendChild(li);
+            li.innerText = p;
+            ul.appendChild(li);
         });
+        bank.appendChild(ul);
+
+        const footer = document.createElement('div');
+        footer.className = 'footer-sheet';
+        // AQUÍ AGREGAMOS TU NOMBRE
+        footer.innerHTML = `
+            <small>✨ Generado con Sopa de Letras App</small><br>
+            <small>🖥️ Hecho por [Daren Paulo Jose Condori Lima]</small>
+        `;
+
+        sheet.appendChild(h2);
+        sheet.appendChild(grid);
+        sheet.appendChild(bank);
+        sheet.appendChild(footer);
+        previewArea.appendChild(sheet);
     }
 
-    // --- TOGGLE SOLUCIÓN ---
+    // --- SOLUCIONES ---
     btnSolucion.addEventListener('click', () => {
-        if (!datosSolucion) return;
+        if (juegosGenerados.length === 0) return;
         mostrandoSolucion = !mostrandoSolucion;
-        if (mostrandoSolucion) {
-            btnSolucion.innerText = "❌ Ocultar";
-            resaltarRespuestas(true);
-        } else {
-            btnSolucion.innerText = "👁️ Ver";
-            resaltarRespuestas(false);
-        }
+        btnSolucion.innerText = mostrandoSolucion ? "❌ Ocultar" : "👁️ Ver";
+
+        juegosGenerados.forEach(juego => {
+            const grid = document.getElementById(`grid-${juego.id}`);
+            resaltar(grid, juego, mostrandoSolucion);
+        });
     });
 
-    function resaltarRespuestas(activar) {
-        const celdas = gridContainer.children;
-        const cols = parseInt(inputCols.value);
-        if (!activar) {
-            for (let celda of celdas) celda.classList.remove('highlight');
-            return;
-        }
-        Object.keys(datosSolucion.soluciones).forEach(palabra => {
-            const { fila, col, dir } = datosSolucion.soluciones[palabra];
+    function resaltar(gridElement, juegoData, activar) {
+        const celdas = gridElement.children;
+        const { cols } = juegoData;
+        for (let celda of celdas) celda.classList.remove('highlight');
+        if (!activar) return;
+
+        Object.keys(juegoData.data.soluciones).forEach(palabra => {
+            const { fila, col, dir } = juegoData.data.soluciones[palabra];
             for (let i = 0; i < palabra.length; i++) {
                 const index = ((fila + (dir.y * i)) * cols) + (col + (dir.x * i));
                 if (celdas[index]) celdas[index].classList.add('highlight');
@@ -161,67 +258,66 @@ SIGUAS`;
         });
     }
 
-    // --- 3. DESCARGAR PDF (FIXED PARA MÓVIL) ---
+    // --- PDF ---
     btnDescargar.addEventListener('click', async () => {
         const { jsPDF } = window.jspdf;
         const chkIncluirSolucion = document.getElementById('chk-incluir-solucion');
         
-        const textoOriginal = btnDescargar.innerText;
-        btnDescargar.innerText = "⏳ Generando...";
+        btnDescargar.innerText = "⏳ Procesando...";
         btnDescargar.disabled = true;
 
-        // Configuración para forzar renderizado de escritorio
-        // Esto evita que salga "aplastado" en móviles
-        const optionsHTML2Canvas = {
-            scale: 2, // Calidad alta
-            windowWidth: 1200, // IMPORTANTE: Simulamos una pantalla de 1200px de ancho
-            width: 210 * 3.7795, // Ancho aproximado en píxeles de A4
-            x: 0,
-            y: 0,
-            scrollX: 0,
-            scrollY: 0
-        };
+        const opts = { scale: 2, windowWidth: 1200 };
 
         try {
-            const estadoUsuarioSolucion = mostrandoSolucion;
-
-            // Página 1: Juego
-            resaltarRespuestas(false);
-            const canvasJuego = await html2canvas(hojaPapel, optionsHTML2Canvas);
-            const imgJuego = canvasJuego.toDataURL('image/png');
-
+            const estadoPrevio = mostrandoSolucion;
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            
-            const propsJuego = pdf.getImageProperties(imgJuego);
-            const heightJuego = (propsJuego.height * pdfWidth) / propsJuego.width;
-            pdf.addImage(imgJuego, 'PNG', 0, 10, pdfWidth, heightJuego);
 
-            // Página 2: Solución
-            if (chkIncluirSolucion.checked) {
-                resaltarRespuestas(true);
-                const tituloOriginal = displayTitulo.innerText;
-                displayTitulo.innerText += " (SOLUCIÓN)";
-                
-                const canvasSolucion = await html2canvas(hojaPapel, optionsHTML2Canvas);
-                const imgSolucion = canvasSolucion.toDataURL('image/png');
+            // 1. Juegos Limpios
+            juegosGenerados.forEach(j => resaltar(document.getElementById(`grid-${j.id}`), j, false));
 
-                displayTitulo.innerText = tituloOriginal;
-                pdf.addPage();
-                
-                const propsSol = pdf.getImageProperties(imgSolucion);
-                const heightSol = (propsSol.height * pdfWidth) / propsSol.width;
-                pdf.addImage(imgSolucion, 'PNG', 0, 10, pdfWidth, heightSol);
+            for (let i = 0; i < juegosGenerados.length; i++) {
+                if (i > 0) pdf.addPage();
+                const sheet = document.getElementById(`sheet-${juegosGenerados[i].id}`);
+                const canvas = await html2canvas(sheet, opts);
+                const img = canvas.toDataURL('image/png');
+                const props = pdf.getImageProperties(img);
+                const h = (props.height * pdfWidth) / props.width;
+                pdf.addImage(img, 'PNG', 0, 10, pdfWidth, h);
             }
 
-            resaltarRespuestas(estadoUsuarioSolucion);
-            pdf.save(`${inputTitulo.value || 'sopa_de_letras'}.pdf`);
+            // 2. Soluciones
+            if (chkIncluirSolucion.checked) {
+                juegosGenerados.forEach(j => {
+                    resaltar(document.getElementById(`grid-${j.id}`), j, true);
+                    document.getElementById(`title-${j.id}`).innerText = j.titulo + " (SOLUCIÓN)";
+                });
 
-        } catch (error) {
-            console.error(error);
+                for (let i = 0; i < juegosGenerados.length; i++) {
+                    pdf.addPage();
+                    const sheet = document.getElementById(`sheet-${juegosGenerados[i].id}`);
+                    const canvas = await html2canvas(sheet, opts);
+                    const img = canvas.toDataURL('image/png');
+                    const props = pdf.getImageProperties(img);
+                    const h = (props.height * pdfWidth) / props.width;
+                    pdf.addImage(img, 'PNG', 0, 10, pdfWidth, h);
+                    // Restaurar título
+                    document.getElementById(`title-${juegosGenerados[i].id}`).innerText = juegosGenerados[i].titulo;
+                }
+            }
+
+            // Restaurar estado
+            juegosGenerados.forEach(j => resaltar(document.getElementById(`grid-${j.id}`), j, estadoPrevio));
+            
+            const nombreArchivo = currentMode === 'single' ? 
+                (juegosGenerados[0].titulo || 'sopa') : 'pack_sopas';
+            pdf.save(`${nombreArchivo}.pdf`);
+
+        } catch (e) {
+            console.error(e);
             alert("Error al generar PDF");
         } finally {
-            btnDescargar.innerText = textoOriginal;
+            btnDescargar.innerText = "📄 Descargar PDF";
             btnDescargar.disabled = false;
         }
     });

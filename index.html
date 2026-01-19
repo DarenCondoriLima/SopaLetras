@@ -7,7 +7,6 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -21,41 +20,54 @@
                 <h1>🧩 Sopa de Letras</h1>
                 <button id="btn-tema" class="btn-icon" title="Cambiar Tema">🌙</button>
             </div>
-            <p>Configura tu juego y descárgalo.</p>
 
-            <div class="form-group">
-                <label for="titulo">Título del Juego</label>
-                <input type="text" id="titulo" placeholder="Ej: Animales de la Selva" value="Mi Sopa de Letras">
+            <div class="mode-tabs">
+                <button id="tab-single" class="tab-btn active">Un Juego</button>
+                <button id="tab-multi" class="tab-btn">Lista Masiva</button>
             </div>
 
-            <div class="form-group">
-                <label for="palabras">Lista de Palabras</label>
-                <textarea id="palabras" placeholder="Ingresa palabras..."></textarea>
+            <p id="mode-desc">Configura un juego único.</p>
+
+            <div id="container-single">
+                <div class="form-group">
+                    <label for="titulo">Título del Juego</label>
+                    <input type="text" id="titulo" placeholder="Ej: Animales" value="Mi Sopa de Letras">
+                </div>
+                <div class="form-group">
+                    <label for="palabras">Lista de Palabras</label>
+                    <textarea id="palabras" placeholder="Ingresa palabras..."></textarea>
+                </div>
+            </div>
+
+            <div id="container-multi" class="hidden">
+                <div class="form-group">
+                    <label for="palabras-multi">Pegar bloque de listas</label>
+                    <textarea id="palabras-multi" placeholder="Título 1
+PalabraA
+PalabraB
+
+Título 2
+PalabraC
+PalabraD"></textarea>
+                </div>
+                <div class="info-box">
+                    <small>Separa cada juego con una línea vacía.</small>
+                </div>
             </div>
 
             <div class="tools-row">
                 <button id="btn-eliminar-texto" class="btn-sm btn-outline-danger">🗑️ Limpiar</button>
-                <button id="btn-ejemplo" class="btn-sm btn-outline-info">🌋 Cargar Ejemplo (Arequipa)</button>
+                <button id="btn-ejemplo" class="btn-sm btn-outline-info">🌋 Cargar Ejemplo</button>
             </div>
 
             <div class="form-group">
                 <label>Dificultad</label>
                 <div class="radio-group">
-                    <label>
-                        <input type="radio" name="dificultad" value="facil" checked> 
-                        Fácil (→ ↓)
-                    </label>
-                    <label>
-                        <input type="radio" name="dificultad" value="medio"> 
-                        Medio (+ Diagonales)
-                    </label>
-                    <label>
-                        <input type="radio" name="dificultad" value="dificil"> 
-                        Difícil (+ Al revés)
-                    </label>
+                    <label><input type="radio" name="dificultad" value="facil" checked> Fácil (→ ↓)</label>
+                    <label><input type="radio" name="dificultad" value="medio"> Medio (+ Diagonales)</label>
+                    <label><input type="radio" name="dificultad" value="dificil"> Difícil (+ Al revés)</label>
                     <label style="color: #e74c3c; font-weight: bold; border: 1px solid #e74c3c; background: #fff5f5;">
-                        <input type="radio" name="dificultad" value="insano"> 
-                        🔥 INSANO (Al revés + Camuflaje)
+                        <input type="radio" name="dificultad" value="insano"> 🔥 INSANO
                     </label>
                 </div>
             </div>
@@ -76,7 +88,7 @@
                 <button id="btn-solucion" class="btn-secondary purple" disabled>👁️ Ver</button>
             </div>
 
-            <button id="btn-ver-movil" class="btn-mobile-only" disabled>⬇️ Ir a la Sopa de Letras</button>
+            <button id="btn-ver-movil" class="btn-mobile-only" disabled>⬇️ Ir a Resultados</button>
             
             <label class="checkbox-label">
                 <input type="checkbox" id="chk-incluir-solucion">
@@ -87,16 +99,10 @@
         </aside>
 
         <main class="preview-area" id="preview-area">
-            <div id="hoja-papel" class="sheet">
-                <h2 id="display-titulo">Mi Sopa de Letras</h2>
-                <div id="grid-container" class="grid-container"></div>
-                <div class="word-bank">
-                    <h3>🔍 Palabras a buscar:</h3>
-                    <ul id="lista-palabras"></ul>
-                </div>
-                <div class="footer-sheet">
-                    <small>✨ Generado con Sopa de Letras App</small>
-                    <small>🖥️ Hecho por [Daren Paulo Jose Condori Lima]</small>
+            <div id="placeholder-inicial" class="placeholder-msg">
+                <div class="sheet-placeholder">
+                    <h2>Vista Previa</h2>
+                    <p>Genera tu sopa de letras para ver el resultado aquí.</p>
                 </div>
             </div>
         </main>
