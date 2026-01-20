@@ -30,31 +30,31 @@
 
             <div id="container-single">
                 
-                <button id="btn-activate-ia" class="btn-sm btn-outline-purple" style="margin-bottom: 10px; width: 100%;">🤖 Usar IA</button>
+                <button id="btn-activate-ia" class="btn-sm btn-outline-purple btn-full mb-2">🤖 Usar IA</button>
 
                 <div class="ai-section hidden" id="ai-section">
                     <div class="ai-header">
-                        <span style="color: #4f46e5; font-weight: bold;">✨ Generador con IA</span>
-                        <small style="font-size: 0.7rem;">(Usa Google Gemini)</small>
+                        <span class="ai-title">✨ Generador con IA</span>
+                        <small>(Usa Google Gemini)</small>
                     </div>
 
                     <div id="ai-setup-box">
                         <input type="password" id="input-api-key" placeholder="Pega tu API Key aquí..." class="ai-input">
-                        <button id="btn-save-key" class="btn-sm" style="background: #4f46e5; color: white;">Guardar Key</button>
+                        <button id="btn-save-key" class="btn-sm btn-ai-action">Guardar Key</button>
                     </div>
                     
                     <div class="ai-help-text" id="ai-help-text">
                         <a href="https://aistudio.google.com/app/apikey" target="_blank">Obtener Key gratis aquí</a>
                     </div>
 
-                    <div id="ai-ready-box" class="hidden" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <span style="color: #10b981; font-size: 0.85rem;">✅ API Key Guardada</span>
-                        <button id="btn-delete-key" class="btn-sm" style="background: #ef4444; color: white; padding: 2px 8px; font-size: 0.7rem;">Borrar</button>
+                    <div id="ai-ready-box" class="hidden ai-ready-container">
+                        <span class="success-text">✅ API Key Guardada</span>
+                        <button id="btn-delete-key" class="btn-sm btn-ai-delete">Borrar</button>
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 5px; margin-top: 10px; border-top: 1px dashed #c7d2fe; padding-top: 10px;">
-                        <textarea id="ai-topic" placeholder="Temática (Ej: Planetas)" class="ai-input" style="flex: 1;"></textarea>
-                        <button id="btn-ai-generate" class="btn-sm" style="background: #6366f1; color: white;">Generar</button>
+                    <div class="ai-controls-row">
+                        <textarea id="ai-topic" placeholder="Temática (Ej: Planetas)" class="ai-input ai-textarea-small"></textarea>
+                        <button id="btn-ai-generate" class="btn-sm btn-ai-generate">Generar</button>
                     </div>
                 </div>
 
@@ -70,23 +70,23 @@
 
             <div id="container-multi" class="hidden">
                 
-                <button id="btn-activate-ia-multi" class="btn-sm btn-outline-purple" style="margin-bottom: 10px; width: 100%;">🤖 Generar Pack con IA</button>
+                <button id="btn-activate-ia-multi" class="btn-sm btn-outline-purple btn-full mb-2">🤖 Generar Pack con IA</button>
 
-                <div class="ai-section hidden" id="ai-section-multi" style="border-color: #f472b6; background: #fdf2f8;">
+                <div class="ai-section ai-pink-theme hidden" id="ai-section-multi">
                     <div class="ai-header">
-                        <span style="color: #db2777; font-weight: bold;">📚 Generador Masivo IA</span>
+                        <span class="ai-title">📚 Generador Masivo IA</span>
                     </div>
 
-                    <div id="ai-multi-msg" style="font-size: 0.8rem; color: #666; margin-bottom: 10px;">
+                    <div id="ai-multi-msg" class="ai-msg">
                         Usa la API Key que configuraste en la pestaña "Un Juego".
                     </div>
 
-                    <div style="display: flex; flex-direction: column; gap: 5px;">
-                        <label style="font-size: 0.8rem; font-weight: bold;">Temas (separados por comas):</label>
-                        <textarea id="ai-topic-multi" placeholder="Ej: Planetas, Capitales de Europa, Elementos Químicos" class="ai-input" style="min-height: 60px;"></textarea>
-                        <div style="display: flex; gap: 5px;">
-                            <input type="number" id="ai-qty-multi" value="15" min="5" max="20" style="width: 60px; padding: 5px; font-size: 0.8rem;" title="Palabras por tema">
-                            <button id="btn-ai-generate-multi" class="btn-sm" style="background: #db2777; color: white; flex: 1;">Generar Pack</button>
+                    <div class="ai-multi-controls">
+                        <label>Temas (separados por comas):</label>
+                        <textarea id="ai-topic-multi" placeholder="Ej: Planetas, Capitales, Química" class="ai-input ai-textarea-medium"></textarea>
+                        <div class="flex-row gap-5">
+                            <input type="number" id="ai-qty-multi" value="15" min="5" max="20" class="input-qty" title="Palabras por tema">
+                            <button id="btn-ai-generate-multi" class="btn-sm btn-ai-generate-pink flex-1">Generar Pack</button>
                         </div>
                     </div>
                 </div>
@@ -108,7 +108,7 @@
                     <label><input type="radio" name="dificultad" value="facil" checked> Fácil (→ ↓)</label>
                     <label><input type="radio" name="dificultad" value="medio"> Medio (+ Diagonales)</label>
                     <label><input type="radio" name="dificultad" value="dificil"> Difícil (+ Al revés)</label>
-                    <label style="color: #e74c3c; font-weight: bold; border: 1px solid #e74c3c; background: #fff5f5;">
+                    <label class="radio-insane">
                         <input type="radio" name="dificultad" value="insano"> 🔥 INSANO
                     </label>
                 </div>

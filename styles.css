@@ -1,4 +1,6 @@
-/* --- VARIABLES --- */
+/* =========================================
+   1. VARIABLES & TEMAS
+   ========================================= */
 :root {
     --bg-body: #f5f7fa;
     --bg-sidebar: #ffffff;
@@ -29,22 +31,25 @@
     --highlight-color: #f59e0b;
 }
 
-/* --- RESET BÁSICO --- */
+/* =========================================
+   2. RESET & BASE
+   ========================================= */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     font-family: 'Poppins', sans-serif;
     background-color: var(--bg-body);
     color: var(--text-primary);
-    
-    /* CAMBIO 1: En PC usamos altura fija, en móvil (media query) lo anularemos */
+    /* En PC altura fija para scroll interno, en móvil se anula */
     height: 100vh; 
     overflow: hidden; 
-} 
+}
 
+/* =========================================
+   3. LAYOUT PRINCIPAL
+   ========================================= */
 .app-container { display: flex; height: 100vh; }
 
-/* --- SIDEBAR --- */
 .sidebar {
     width: 380px;
     background-color: var(--bg-sidebar);
@@ -56,167 +61,6 @@ body {
     z-index: 10;
 }
 
-/* Pestañas de Modo */
-.mode-tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 10px;
-    background: var(--input-border);
-    padding: 4px;
-    border-radius: 8px;
-}
-
-.tab-btn {
-    flex: 1;
-    padding: 8px;
-    font-size: 0.85rem;
-    background: transparent;
-    color: var(--text-secondary);
-    border-radius: 6px;
-    font-weight: 600;
-}
-
-.tab-btn.active {
-    background: var(--bg-sidebar);
-    color: var(--accent-color);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* Utilidad para ocultar */
-.hidden {
-    display: none !important;
-}
-
-.info-box {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
-    margin-top: -5px;
-    margin-bottom: 10px;
-}
-
-/* Header Tools */
-.header-tools { display: flex; justify-content: space-between; align-items: center; }
-.btn-icon { background: var(--input-bg); border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 8px; cursor: pointer; color: var(--text-primary); }
-
-.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
-.form-group-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.form-group-inline-option { display: flex; flex-direction: column; gap: 0.5rem; }
-.tools-row { display: flex; gap: 10px; }
-
-input, textarea { padding: 0.75rem; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-primary); border-radius: 8px; }
-textarea { font-family: 'Roboto Mono', monospace; min-height: 100px; resize: vertical; }
-
-/* Clase de utilidad para ocultar cosas */
-.hidden {
-    display: none !important;
-}
-
-/* Estilos de la sección IA */
-.ai-section {
-    background: var(--bg-body);
-    padding: 15px;
-    border-radius: 10px;
-    border: 1px solid #c7d2fe;
-    margin-bottom: 20px;
-    animation: fadeIn 0.3s ease; /* Efecto suave al aparecer */
-}
-
-/* Estilo para el botón de borde morado */
-.btn-outline-purple {
-    background: transparent;
-    border: 1px solid #6366f1 !important;
-    color: #6366f1;
-    transition: all 0.2s;
-}
-
-.btn-outline-purple:hover {
-    background: #6366f1;
-    color: white;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-5px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.ai-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.ai-header small {
-    color: var(--text-secondary);
-}
-
-.ai-input {
-    padding: 8px;
-    border: 1px solid #c7d2fe;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    width: 100%;
-}
-
-.ai-input:focus {
-    outline: none;
-    border-color: #6366f1;
-    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-}
-
-#ai-setup-box {
-    display: flex;
-    gap: 5px;
-}
-
-.ai-help-text {
-    font-size: 0.75rem;
-    margin-top: 5px;
-    text-align: right;
-}
-
-.ai-help-text a {
-    color: #6366f1;
-    text-decoration: none;
-}
-
-.btn-outline-pink {
-    border: 1px solid #db2777;
-    color: #db2777;
-    background: transparent;
-}
-.btn-outline-pink:hover {
-    background: #db2777;
-    color: white;
-}
-/* Botones */
-.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; border: 1px solid transparent; flex: 1; }
-.btn-outline-danger { background: transparent; border-color: #ef4444; color: #ef4444; }
-.btn-outline-danger:hover { background: #ef4444; color: white; }
-.btn-outline-info { background: transparent; border-color: #3b82f6; color: #3b82f6; }
-.btn-outline-info:hover { background: #3b82f6; color: white; }
-
-button { border: none; font-weight: 600; cursor: pointer; transition: 0.2s; border-radius: 8px; }
-.btn-primary { background: var(--accent-color); color: white; padding: 12px; }
-.btn-secondary { background: #10b981; color: white; padding: 12px; }
-.btn-secondary:disabled { background: #94a3b8; cursor: not-allowed; }
-.purple { background: #8b5cf6; }
-.button-group { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
-
-.radio-group { background: var(--input-bg); padding: 10px; border: 1px solid var(--input-border); border-radius: 8px; display: flex; flex-direction: column; gap: 5px; }
-.checkbox-label { display: flex; align-items: center; gap: 8px; padding: 10px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; cursor: pointer; }
-
-/* Botón Móvil */
-.btn-mobile-only {
-    display: none; 
-    width: 100%;
-    background-color: #f59e0b;
-    color: white;
-    padding: 12px;
-    margin-top: 5px;
-}
-
-/* --- PREVIEW AREA (PC) --- */
 .preview-area {
     flex: 1;
     background-color: var(--bg-body);
@@ -224,147 +68,232 @@ button { border: none; font-weight: 600; cursor: pointer; transition: 0.2s; bord
     overflow: auto; 
     display: flex;
     flex-direction: column;
-        justify-content: flex-start;
-    /* En PC centramos la hoja, en móvil (abajo) lo cambiaremos */
-    
-    align-items: flex-start;
+    justify-content: flex-start;
+    align-items: center; /* Centrar hojas en PC */
 }
 
-/* Placeholder inicial */
+/* =========================================
+   4. COMPONENTES UI
+   ========================================= */
+/* Headers & Info */
+.header-tools { display: flex; justify-content: space-between; align-items: center; }
+.info-box { font-size: 0.8rem; color: var(--text-secondary); margin-top: -5px; margin-bottom: 10px; }
+
+/* Tabs */
+.mode-tabs {
+    display: flex; gap: 0; margin-bottom: 10px;
+    background: var(--input-border); padding: 4px; border-radius: 8px;
+}
+.tab-btn {
+    flex: 1; padding: 8px; font-size: 0.85rem; background: transparent;
+    color: var(--text-secondary); border-radius: 6px; font-weight: 600;
+}
+.tab-btn.active {
+    background: var(--bg-sidebar); color: var(--accent-color);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Forms & Inputs */
+.form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+.form-group-inline { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-group-inline-option { display: flex; flex-direction: column; gap: 0.5rem; }
+
+input, textarea {
+    padding: 0.75rem; border: 1px solid var(--input-border);
+    background: var(--input-bg); color: var(--text-primary);
+    border-radius: 8px; font-family: inherit; font-size: 0.9rem;
+}
+textarea { font-family: 'Roboto Mono', monospace; min-height: 100px; resize: vertical; }
+
+/* Radio & Checkbox */
+.radio-group {
+    background: var(--input-bg); padding: 10px;
+    border: 1px solid var(--input-border); border-radius: 8px;
+    display: flex; flex-direction: column; gap: 5px;
+}
+.radio-group label {
+    display: flex; align-items: center; gap: 0.5rem;
+    cursor: pointer; font-size: 0.9rem;
+}
+.checkbox-label {
+    display: flex; align-items: center; gap: 8px; padding: 10px;
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 8px; cursor: pointer;
+}
+
+/* Label especial INSANO */
+.radio-insane {
+    color: #e74c3c; font-weight: bold;
+    border: 1px solid #e74c3c; background: #fff5f5;
+    padding: 5px; border-radius: 4px;
+}
+
+/* Botones */
+button { border: none; font-weight: 600; cursor: pointer; transition: 0.2s; border-radius: 8px; }
+
+.btn-icon { background: var(--input-bg); border: 1px solid var(--border-color); padding: 0.5rem; border-radius: 8px; color: var(--text-primary); }
+.btn-primary { background: var(--accent-color); color: white; padding: 12px; }
+.btn-secondary { background: #10b981; color: white; padding: 12px; }
+.btn-secondary:disabled { background: #94a3b8; cursor: not-allowed; }
+.purple { background: #8b5cf6; }
+
+/* Botones Outline y Pequeños */
+.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; border: 1px solid transparent; }
+.btn-outline-danger { background: transparent; border-color: #ef4444; color: #ef4444; }
+.btn-outline-danger:hover { background: #ef4444; color: white; }
+.btn-outline-info { background: transparent; border-color: #3b82f6; color: #3b82f6; }
+.btn-outline-info:hover { background: #3b82f6; color: white; }
+.btn-outline-purple { background: transparent; border-color: #6366f1 !important; color: #6366f1; }
+.btn-outline-purple:hover { background: #6366f1; color: white; }
+
+.button-group { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+.tools-row { display: flex; gap: 10px; }
+.btn-mobile-only { display: none; width: 100%; background-color: #f59e0b; color: white; padding: 12px; margin-top: 5px; }
+
+/* Clases de utilidad */
+.hidden { display: none !important; }
+.mb-2 { margin-bottom: 10px; }
+.btn-full { width: 100%; }
+.flex-row { display: flex; align-items: center; }
+.flex-1 { flex: 1; }
+.gap-5 { gap: 5px; }
+
+
+/* =========================================
+   5. SECCIÓN IA (Estilos Específicos)
+   ========================================= */
+.ai-section {
+    background: var(--bg-body); padding: 15px; border-radius: 10px;
+    border: 1px solid #c7d2fe; margin-bottom: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+.ai-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.ai-title { color: #4f46e5; font-weight: bold; }
+.ai-header small { color: var(--text-secondary); font-size: 0.7rem; }
+
+.ai-input { padding: 8px; border: 1px solid #c7d2fe; border-radius: 6px; font-size: 0.85rem; width: 100%; }
+.ai-input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
+
+/* Setup & Ready Boxes */
+#ai-setup-box { display: flex; gap: 5px; }
+.ai-ready-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.success-text { color: #10b981; font-size: 0.85rem; }
+
+.ai-help-text { font-size: 0.75rem; margin-top: 5px; text-align: right; }
+.ai-help-text a { color: #6366f1; text-decoration: none; }
+
+/* Botones IA Específicos */
+.btn-ai-action { background: #4f46e5; color: white; }
+.btn-ai-delete { background: #ef4444; color: white; padding: 2px 8px; font-size: 0.7rem; }
+.btn-ai-generate { background: #6366f1; color: white; }
+
+/* Controles de Generación */
+.ai-controls-row {
+    display: flex; flex-direction: column; gap: 5px; margin-top: 10px;
+    border-top: 1px dashed #c7d2fe; padding-top: 10px;
+}
+.ai-textarea-small { flex: 1; }
+
+/* IA PINK THEME (Multi) */
+.ai-pink-theme { border-color: #f472b6; background: #fdf2f8; }
+.ai-pink-theme .ai-title { color: #db2777; }
+.ai-msg { font-size: 0.8rem; color: #666; margin-bottom: 10px; }
+.ai-multi-controls { display: flex; flex-direction: column; gap: 5px; }
+.ai-textarea-medium { min-height: 60px; }
+.input-qty { width: 60px; padding: 5px; font-size: 0.8rem; border-radius: 6px; border: 1px solid #cbd5e1; }
+.btn-ai-generate-pink { background: #db2777; color: white; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* =========================================
+   6. VISUALIZACIÓN (SHEET & PREVIEW)
+   ========================================= */
 .sheet-placeholder {
-    text-align: center;
-    color: #999;
-    border: 2px dashed #ddd;
-    padding: 40px;
-    border-radius: 10px;
-    max-width: 400px;
-    margin: 50px auto;
+    text-align: center; color: #999; border: 2px dashed #ddd;
+    padding: 40px; border-radius: 10px; max-width: 400px; margin: 50px auto;
 }
 
-/* --- HOJA DE PAPEL --- */
 .sheet {
     background-color: white;
     width: 100%;
-    /* TRUCOS PARA PDF PERFECTO: */
     max-width: 210mm; 
-    min-width: 210mm; /* Mantiene el ancho real de A4 aunque la pantalla sea pequeña */
+    min-width: 210mm; /* Fijo para evitar deformación */
     min-height: 297mm;
     padding: 40px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     color: #1e293b;
     display: flex; flex-direction: column; align-items: center;
     margin-bottom: 40px !important;
-    margin-left: auto; 
-    margin-right: auto;
-    /* Evita que la hoja se encoja dentro del flex */
+    /* Flex shrink 0 evita que se aplaste en contenedores flex */
     flex-shrink: 0; 
 }
 
 .sheet h2 { text-align: center; border-bottom: 3px solid #333; margin-bottom: 20px; width: 100%; padding-bottom: 10px; }
+.footer-sheet { margin-top: auto; padding-top: 20px; border-top: 1px solid #eee; width: 100%; text-align: center; color: #999; font-size: 0.8rem; }
 
+/* GRID */
 .grid-container { display: grid; gap: 2px; border: 3px solid #1e293b; background: #1e293b; margin-bottom: 30px; }
-.grid-cell { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 1.2rem; text-transform: uppercase; }
+.grid-cell {
+    background: white; aspect-ratio: 1/1; display: flex;
+    align-items: center; justify-content: center;
+    font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 1.2rem;
+    text-transform: uppercase;
+}
 .grid-cell.highlight { background-color: var(--highlight-color) !important; color: black !important; }
 
-/* --- LISTA DE PALABRAS (WORD BANK) --- */
+/* WORD BANK */
 .word-bank {
-    width: 100%;
-    background: #f8fafc;
-    padding: 15px;
-    border-radius: 8px;
-    border: 2px solid #e2e8f0;
-    margin-top: 20px;
+    width: 100%; background: #f8fafc; padding: 15px;
+    border-radius: 8px; border: 2px solid #e2e8f0; margin-top: 20px;
 }
-
 .word-bank h3 {
-    margin-bottom: 10px;
-    font-size: 1rem;
-    color: #334155;
-    font-weight: 600;
-    border-bottom: 1px solid #cbd5e1;
-    padding-bottom: 5px;
+    margin-bottom: 10px; font-size: 1rem; color: #334155;
+    font-weight: 600; border-bottom: 1px solid #cbd5e1; padding-bottom: 5px;
 }
-
-/* CAMBIO IMPORTANTE: Usamos '.word-bank ul' en vez de '#lista-palabras' */
 .word-bank ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    
-    /* Sistema de Columnas Automático */
+    list-style: none; padding: 0; margin: 0;
     display: grid;
-    /* Esto crea columnas de mínimo 110px. Si hay espacio, caben más. */
     grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
     gap: 8px;
 }
-
-/* Estilo de cada palabra */
 .word-bank ul li {
-    font-size: 0.85rem;
-    color: #334155;
-    background-color: white;
-    padding: 6px 4px;
-    border: 1px solid #cbd5e1;
-    border-radius: 4px;
-    text-align: center;
-    overflow: hidden;
-    text-overflow: ellipsis; 
-    white-space: nowrap; 
+    font-size: 0.85rem; color: #334155; background-color: white;
+    padding: 6px 4px; border: 1px solid #cbd5e1; border-radius: 4px;
+    text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; 
 }
 
-/* Ajuste móvil */
-@media (max-width: 480px) {
-    .word-bank ul {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-.footer-sheet { margin-top: auto; padding-top: 20px; border-top: 1px solid #eee; width: 100%; text-align: center; color: #999; font-size: 0.8rem; }
 
 /* =========================================
-   --- CAMBIOS CRUCIALES PARA MÓVIL --- 
+   7. RESPONSIVE (MÓVIL)
    ========================================= */
 @media (max-width: 768px) {
-    /* 1. Liberamos el scroll del body */
     body {
         height: auto;
-        overflow-y: auto; /* Permite scroll vertical nativo */
-        overflow-x: hidden; /* Evita scroll horizontal en toda la app, solo en la hoja */
+        overflow-y: auto; 
+        overflow-x: hidden;
     }
 
-    .app-container {
-        flex-direction: column;
-        height: auto; /* La altura ya no está limitada */
-        overflow: visible;
-    }
-
-    .sidebar {
-        width: 100%;
-        height: auto;
-        padding: 1.5rem;
-        /* Quitamos overflow de sidebar porque ahora scrollea con toda la página */
-        overflow: visible; 
-    }
-
-    /* Botón visible solo en móvil */
+    .app-container { flex-direction: column; height: auto; overflow: visible; }
+    .sidebar { width: 100%; height: auto; padding: 1.5rem; overflow: visible; }
+    
     .btn-mobile-only { display: block; }
 
-    /* 2. Área de Previsualización con Scroll Horizontal */
+    /* Scroll Horizontal para la hoja */
     .preview-area {
-        display: block; /* Cambiamos de Flex a Block para mejor control del scroll */
-        width: 100%;
-        height: auto;
-        padding: 20px;
-        
-        /* MAGIA PARA SCROLL HORIZONTAL: */
-        overflow-x: auto; /* Permite deslizar a los lados */
-        -webkit-overflow-scrolling: touch; /* Suavidad en iPhone */
+        display: block; 
+        width: 100%; height: auto; padding: 20px;
+        overflow-x: auto; 
+        -webkit-overflow-scrolling: touch;
     }
 
-    .sheet {
-        /* Centramos la hoja con margen automático */
-        margin: 0 auto; 
-        
-        /* Aseguramos que el usuario pueda ver la hoja completa haciendo scroll */
-        /* Al tener min-width: 210mm (definido arriba), el contenedor .preview-area activará su scrollbar horizontal */
-    }
+    .sheet { margin: 0 auto; }
+}
+
+@media (max-width: 480px) {
+    .word-bank ul { grid-template-columns: repeat(2, 1fr); }
 }
