@@ -3,7 +3,7 @@ import GeneradorSopa from './generator.js';
 import * as AI from './ai.js';
 import * as Renderer from './renderer.js';
 import { generatePDF } from './pdf.js';
-import { ProgressManager } from './ui.js'; // IMPORTAR GESTOR UI
+import { ProgressManager } from './ui.js'; 
 
 document.addEventListener('DOMContentLoaded', () => {
     
@@ -158,18 +158,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const tema = inputAITopic.value.trim();
         if (!tema) return alert("Escribe un tema.");
 
-        // INICIAR PROGRESO (OBTENEMOS SEÑAL DE CANCELACIÓN)
         const signal = progress.start("Generando Lista IA");
 
         try {
-            // Progreso Falso para feedback visual
             let fakeProgress = 0;
             const interval = setInterval(() => {
                 fakeProgress += 10;
                 if(fakeProgress < 90) progress.update(fakeProgress, "Consultando a Gemini...");
             }, 300);
 
-            // Llamada IA con señal de cancelación
             const palabras = await AI.generateListSingle(tema, apiKey, signal);
             
             clearInterval(interval);
@@ -181,7 +178,6 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => inputPalabras.style.borderColor = "", 500);
             
         } catch (e) {
-            // Ignorar errores de cancelación manual
             if(!e.message.includes("cancelada")) alert(e.message);
         } finally {
             progress.finish();
@@ -200,7 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const cantidad = inputQtyMulti.value || 15;
             
-            // Progreso Falso
             let fakeProgress = 0;
             const interval = setInterval(() => {
                 fakeProgress += 5;
@@ -224,11 +219,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- GENERACIÓN DEL JUEGO (CORE) ---
+    // --- GENERACIÓN DEL JUEGO (CORE - OPTIMIZADO) ---
 
     btnGenerar.addEventListener('click', async () => {
         const filas = parseInt(inputFilas.value);
         const cols = parseInt(inputCols.value);
+        
         let dificultad = 'facil';
         for (const radio of radiosDificultad) { if (radio.checked) { dificultad = radio.value; break; } }
 
@@ -277,7 +273,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     filas, cols
                 });
 
-                Renderer.createSheetHTML(previewArea, idUnico, juegoData.titulo, resultado, cols);
+                // AQUÍ PASAMOS LA DIFICULTAD PARA EL BADGE
+                Renderer.createSheetHTML(previewArea, idUnico, juegoData.titulo, resultado, cols, dificultad);
 
                 // Actualizar barra
                 const percent = Math.round(((i + 1) / juegosAProcesar.length) * 100);
@@ -335,10 +332,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const incluirSol = chkIncluirSolucion.checked;
 
         try {
-            // Pasamos el objeto 'progress' en lugar del botón
             await generatePDF(juegosGenerados, incluirSol, progress);
         } catch (e) {
-             if(!e.message.includes("cancelada")) console.error(e);
+             if(e.message && !e.message.includes("cancelada")) console.error(e);
         } finally {
             progress.finish();
         }

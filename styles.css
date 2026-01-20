@@ -354,3 +354,43 @@ button { border: none; font-weight: 600; cursor: pointer; transition: 0.2s; bord
 }
 
 .btn-cancel:hover { background-color: #ef4444; color: white; }
+
+/* =========================================
+   9. ETIQUETAS DE DIFICULTAD
+   ========================================= */
+.difficulty-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 15px; /* Espacio antes de la grilla */
+    letter-spacing: 0.5px;
+}
+
+/* Colores por nivel */
+.badge-facil {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.badge-medio {
+    background-color: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+}
+
+.badge-dificil {
+    background-color: #ffedd5;
+    color: #9a3412;
+    border: 1px solid #fed7aa;
+}
+
+.badge-insano {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
+}
