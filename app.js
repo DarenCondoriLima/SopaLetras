@@ -3,9 +3,13 @@ import GeneradorSopa from './generator.js';
 import * as AI from './ai.js';
 import * as Renderer from './renderer.js';
 import { generatePDF } from './pdf.js';
+import { ProgressManager } from './ui.js'; // IMPORTAR GESTOR UI
 
 document.addEventListener('DOMContentLoaded', () => {
     
+    // INSTANCIAR GESTOR DE PROGRESO
+    const progress = new ProgressManager();
+
     // --- REFERENCIAS DOM ---
     const tabSingle = document.getElementById('tab-single');
     const tabMulti = document.getElementById('tab-multi');
@@ -145,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnActivateIAMulti.innerText = isHidden ? "🤖 Generar Pack con IA" : "❌ Cerrar IA";
     });
 
-    // --- GENERACIÓN CON IA ---
+    // --- GENERACIÓN CON IA (CON BARRA DE PROGRESO) ---
     
     // Single
     btnAIGenerate.addEventListener('click', async () => {
@@ -154,21 +158,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const tema = inputAITopic.value.trim();
         if (!tema) return alert("Escribe un tema.");
 
-        const originalText = btnAIGenerate.innerText;
-        btnAIGenerate.innerText = "✨ Pensando...";
-        btnAIGenerate.disabled = true;
+        // INICIAR PROGRESO (OBTENEMOS SEÑAL DE CANCELACIÓN)
+        const signal = progress.start("Generando Lista IA");
 
         try {
-            const palabras = await AI.generateListSingle(tema, apiKey);
+            // Progreso Falso para feedback visual
+            let fakeProgress = 0;
+            const interval = setInterval(() => {
+                fakeProgress += 10;
+                if(fakeProgress < 90) progress.update(fakeProgress, "Consultando a Gemini...");
+            }, 300);
+
+            // Llamada IA con señal de cancelación
+            const palabras = await AI.generateListSingle(tema, apiKey, signal);
+            
+            clearInterval(interval);
+            progress.update(100, "¡Listo!");
+
             inputPalabras.value = palabras;
             inputTitulo.value = tema.charAt(0).toUpperCase() + tema.slice(1);
             inputPalabras.style.borderColor = "#10b981";
             setTimeout(() => inputPalabras.style.borderColor = "", 500);
+            
         } catch (e) {
-            alert(e.message);
+            // Ignorar errores de cancelación manual
+            if(!e.message.includes("cancelada")) alert(e.message);
         } finally {
-            btnAIGenerate.innerText = originalText;
-            btnAIGenerate.disabled = false;
+            progress.finish();
         }
     });
 
@@ -179,28 +195,38 @@ document.addEventListener('DOMContentLoaded', () => {
         const temas = inputTopicMulti.value.trim();
         if (!temas) return alert("Escribe temas.");
         
-        const originalText = btnAIGenerateMulti.innerText;
-        btnAIGenerateMulti.innerText = "📚 Generando...";
-        btnAIGenerateMulti.disabled = true;
+        const signal = progress.start("Generando Pack Masivo");
 
         try {
             const cantidad = inputQtyMulti.value || 15;
-            const resultado = await AI.generateListMulti(temas, cantidad, apiKey);
+            
+            // Progreso Falso
+            let fakeProgress = 0;
+            const interval = setInterval(() => {
+                fakeProgress += 5;
+                if(fakeProgress < 95) progress.update(fakeProgress, "Creando múltiples listas...");
+            }, 500);
+
+            const resultado = await AI.generateListMulti(temas, cantidad, apiKey, signal);
+            
+            clearInterval(interval);
+            progress.update(100, "¡Finalizado!");
+
             inputPalabrasMulti.value = resultado;
             inputPalabrasMulti.style.borderColor = "#db2777";
             setTimeout(() => inputPalabrasMulti.style.borderColor = "", 500);
+
         } catch (e) {
-            alert(e.message);
+            if(!e.message.includes("cancelada")) alert(e.message);
         } finally {
-            btnAIGenerateMulti.innerText = originalText;
-            btnAIGenerateMulti.disabled = false;
+            progress.finish();
         }
     });
 
 
     // --- GENERACIÓN DEL JUEGO (CORE) ---
 
-    btnGenerar.addEventListener('click', () => {
+    btnGenerar.addEventListener('click', async () => {
         const filas = parseInt(inputFilas.value);
         const cols = parseInt(inputCols.value);
         let dificultad = 'facil';
@@ -218,35 +244,61 @@ document.addEventListener('DOMContentLoaded', () => {
             if(juegosAProcesar.length === 0) return alert("Formato incorrecto");
         }
 
-        // Generar
-        juegosGenerados = [];
+        // INICIAR PROGRESO
+        progress.start("Construyendo Sopas de Letras");
+        
+        // Limpiar
         previewArea.innerHTML = ''; 
+        let juegosGeneradosTemp = [];
 
-        juegosAProcesar.forEach((juegoData, index) => {
-            const generador = new GeneradorSopa(filas, cols);
-            const resultado = generador.generar(juegoData.palabras, dificultad);
-            
-            if (currentMode === 'single' && resultado.omitidas.length > 0) {
-                alert(`No cupieron: ${resultado.omitidas.join(", ")}`);
+        try {
+            // Bucle con pausa para permitir cancelación
+            for (let i = 0; i < juegosAProcesar.length; i++) {
+                
+                // Chequear cancelación cada cierto tiempo para no bloquear
+                if (i % 5 === 0) {
+                     progress.checkCancellation();
+                     await new Promise(r => setTimeout(r, 0)); // Yield al UI
+                }
+
+                const juegoData = juegosAProcesar[i];
+                const generador = new GeneradorSopa(filas, cols);
+                const resultado = generador.generar(juegoData.palabras, dificultad);
+                
+                if (currentMode === 'single' && resultado.omitidas.length > 0) {
+                    alert(`No cupieron: ${resultado.omitidas.join(", ")}`);
+                }
+
+                const idUnico = `juego-${i}`;
+                juegosGeneradosTemp.push({
+                    id: idUnico,
+                    titulo: juegoData.titulo,
+                    data: resultado,
+                    filas, cols
+                });
+
+                Renderer.createSheetHTML(previewArea, idUnico, juegoData.titulo, resultado, cols);
+
+                // Actualizar barra
+                const percent = Math.round(((i + 1) / juegosAProcesar.length) * 100);
+                progress.update(percent, `Generando ${i + 1}/${juegosAProcesar.length}`);
             }
 
-            const idUnico = `juego-${index}`;
-            juegosGenerados.push({
-                id: idUnico,
-                titulo: juegoData.titulo,
-                data: resultado,
-                filas, cols
-            });
+            // Éxito: actualizamos variable global
+            juegosGenerados = juegosGeneradosTemp;
+            
+            // Reset UI Buttons
+            mostrandoSolucion = false;
+            btnSolucion.innerText = "👁️ Ver";
+            btnDescargar.disabled = false;
+            btnSolucion.disabled = false;
+            btnVerMovil.disabled = false;
 
-            Renderer.createSheetHTML(previewArea, idUnico, juegoData.titulo, resultado, cols);
-        });
-
-        // Reset UI Buttons
-        mostrandoSolucion = false;
-        btnSolucion.innerText = "👁️ Ver";
-        btnDescargar.disabled = false;
-        btnSolucion.disabled = false;
-        btnVerMovil.disabled = false;
+        } catch (e) {
+            console.log("Generación cancelada");
+        } finally {
+            progress.finish();
+        }
     });
 
     function parseMultiInput(text) {
@@ -275,8 +327,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    btnDescargar.addEventListener('click', () => {
-        generatePDF(juegosGenerados, chkIncluirSolucion.checked, btnDescargar);
+    // --- DESCARGAR PDF (CON PROGRESO) ---
+    btnDescargar.addEventListener('click', async () => {
+        if (!juegosGenerados || juegosGenerados.length === 0) return;
+        
+        progress.start("Iniciando motor PDF...");
+        const incluirSol = chkIncluirSolucion.checked;
+
+        try {
+            // Pasamos el objeto 'progress' en lugar del botón
+            await generatePDF(juegosGenerados, incluirSol, progress);
+        } catch (e) {
+             if(!e.message.includes("cancelada")) console.error(e);
+        } finally {
+            progress.finish();
+        }
     });
     
     // Auxiliares
