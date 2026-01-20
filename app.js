@@ -10,9 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inputs Single
     const inputTitulo = document.getElementById('titulo');
     const inputPalabras = document.getElementById('palabras');
-    
-    // Inputs Multi
-    const inputPalabrasMulti = document.getElementById('palabras-multi');
 
     // Botones Comunes
     const btnGenerar = document.getElementById('btn-generar');
@@ -36,6 +33,257 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- CAMBIO DE MODO ---
     tabSingle.addEventListener('click', () => setMode('single'));
     tabMulti.addEventListener('click', () => setMode('multi'));
+
+    // --- ELEMENTOS DE IA ---
+    const btnSaveKey = document.getElementById('btn-save-key');
+    const btnDeleteKey = document.getElementById('btn-delete-key');
+    const btnActivateIA = document.getElementById('btn-activate-ia');
+    const divAiSection = document.getElementById('ai-section');
+    const inputApiKey = document.getElementById('input-api-key');
+    const divSetupBox = document.getElementById('ai-setup-box');
+    const divReadyBox = document.getElementById('ai-ready-box');
+    const divHelpText = document.getElementById('ai-help-text');
+    
+    const btnAIGenerate = document.getElementById('btn-ai-generate');
+    const inputAITopic = document.getElementById('ai-topic');
+
+    // 1. COMPROBAR SI YA HAY KEY GUARDADA
+    checkSavedKey();
+
+    function checkSavedKey() {
+        const key = localStorage.getItem('gemini_api_key');
+        if (key) {
+            // Si hay key, ocultar setup y mostrar ready
+            divSetupBox.classList.add('hidden');
+            divHelpText.classList.add('hidden');
+            divReadyBox.classList.remove('hidden');
+            divReadyBox.style.display = 'flex'; // Restaurar flex si hidden lo quitó
+        } else {
+            // Si no hay, mostrar setup
+            divSetupBox.classList.remove('hidden');
+            divHelpText.classList.remove('hidden');
+            divReadyBox.classList.add('hidden');
+        }
+    }
+
+    // 2. GUARDAR KEY
+    btnSaveKey.addEventListener('click', () => {
+        const key = inputApiKey.value.trim();
+        if (key.length < 10) {
+            alert("La API Key parece demasiado corta.");
+            return;
+        }
+        localStorage.setItem('gemini_api_key', key);
+        inputApiKey.value = ''; // Limpiar input por seguridad
+        checkSavedKey(); // Actualizar interfaz
+    });
+
+    // 3. BORRAR KEY
+    btnDeleteKey.addEventListener('click', () => {
+        if(confirm("¿Quieres borrar la API Key de este navegador?")) {
+            localStorage.removeItem('gemini_api_key');
+            checkSavedKey();
+        }
+    });
+
+    btnActivateIA.addEventListener('click', () => {
+        // 1. Alternar la clase 'hidden'
+        divAiSection.classList.toggle('hidden');
+        
+        // 2. Verificar si ahora es visible para cambiar el texto
+        const isHidden = divAiSection.classList.contains('hidden');
+        
+        if (isHidden) {
+            btnActivateIA.innerText = "🤖 Usar IA";
+            btnActivateIA.classList.remove('active'); // Opcional: para estilos
+        } else {
+            btnActivateIA.innerText = "❌ Ocultar IA";
+            btnActivateIA.classList.add('active'); // Opcional
+            
+            // Foco automático al input cuando se abre
+            const inputTopic = document.getElementById('ai-topic');
+            const inputKey = document.getElementById('input-api-key');
+            
+            // Si ya hay key, foco al tema, si no, a la key
+            if(localStorage.getItem('gemini_api_key')) {
+                setTimeout(() => inputTopic.focus(), 100);
+            } else {
+                setTimeout(() => inputKey.focus(), 100);
+            }
+        }
+    });
+
+    // 4. GENERAR CON IA
+    btnAIGenerate.addEventListener('click', async () => {
+        const tema = inputAITopic.value.trim();
+        const apiKey = localStorage.getItem('gemini_api_key');
+
+        if (!apiKey) {
+            alert("⚠️ Primero debes guardar tu API Key de Google Gemini arriba.");
+            return;
+        }
+        
+        if (!tema) {
+            alert("Escribe una temática (ej: Países de Europa).");
+            return;
+        }
+
+        const textoOriginal = btnAIGenerate.innerText;
+        btnAIGenerate.innerText = "✨ Pensando...";
+        btnAIGenerate.disabled = true;
+
+        try {
+            // Prompt optimizado para que la IA no hable, solo dé datos
+            const prompt = `
+            Genera una lista de 15 palabras relacionadas con: "${tema}".
+            Reglas:
+            1. Solo devuelve las palabras (una por línea).
+            2. Sin numeración (ni 1., ni -).
+            3. Todo en MAYÚSCULAS.
+            4. Máximo 12 letras por palabra.
+            5. No escribas nada más que las palabras.
+            `;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }]
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                console.error("Error API:", data.error);
+                throw new Error("Error en la API: " + data.error.message);
+            }
+
+            const textoGenerado = data.candidates[0].content.parts[0].text;
+            
+            // Limpiar respuesta (quitar posibles asteriscos o espacios extra)
+            const palabrasLimpias = textoGenerado.trim();
+
+            inputPalabras.value = palabrasLimpias;
+            inputTitulo.value = tema.charAt(0).toUpperCase() + tema.slice(1);
+            
+            // Efecto visual de éxito
+            inputPalabras.style.borderColor = "#10b981";
+            setTimeout(() => inputPalabras.style.borderColor = "", 500);
+
+        } catch (error) {
+            console.error(error);
+            alert("Hubo un problema: " + error.message);
+            // Si el error es de autenticación, sugerir borrar la key
+            if(error.message.includes('API_KEY_INVALID') || error.message.includes('403')) {
+                if(confirm("La API Key parece inválida. ¿Quieres borrarla?")) {
+                    localStorage.removeItem('gemini_api_key');
+                    checkSavedKey();
+                }
+            }
+        } finally {
+            btnAIGenerate.innerText = textoOriginal;
+            btnAIGenerate.disabled = false;
+        }
+    });
+
+    // --- REFERENCIAS IA MULTI ---
+    const btnActivateIAMulti = document.getElementById('btn-activate-ia-multi');
+    const divAiSectionMulti = document.getElementById('ai-section-multi');
+    const btnAIGenerateMulti = document.getElementById('btn-ai-generate-multi');
+    const inputTopicMulti = document.getElementById('ai-topic-multi');
+    const inputQtyMulti = document.getElementById('ai-qty-multi');
+    const inputPalabrasMulti = document.getElementById('palabras-multi');
+
+    // --- TOGGLE VISIBILIDAD IA MULTI ---
+    btnActivateIAMulti.addEventListener('click', () => {
+        divAiSectionMulti.classList.toggle('hidden');
+        if (divAiSectionMulti.classList.contains('hidden')) {
+            btnActivateIAMulti.innerText = "🤖 Generar Pack con IA";
+        } else {
+            btnActivateIAMulti.innerText = "❌ Cerrar IA";
+            setTimeout(() => inputTopicMulti.focus(), 100);
+        }
+    });
+
+    // --- GENERAR MULTI ---
+    btnAIGenerateMulti.addEventListener('click', async () => {
+        const temas = inputTopicMulti.value.trim();
+        const cantidad = inputQtyMulti.value || 15;
+        const apiKey = localStorage.getItem('gemini_api_key');
+
+        if (!apiKey) {
+            alert("⚠️ Primero configura tu API Key en la pestaña 'Un Juego'.");
+            // Opcional: Cambiar a la pestaña single automáticamente
+            tabSingle.click();
+            return;
+        }
+
+        if (!temas) {
+            alert("Ingresa al menos un tema (ej: Deportes).");
+            return;
+        }
+
+        const textoOriginal = btnAIGenerateMulti.innerText;
+        btnAIGenerateMulti.innerText = "📚 Generando múltiples listas...";
+        btnAIGenerateMulti.disabled = true;
+
+        try {
+            // Prompt diseñado para devolver el formato exacto que usa tu parseador
+            const prompt = `
+            Actúa como un generador de contenido para juegos de sopa de letras.
+            El usuario te dará una lista de temas: "${temas}".
+            
+            Tu tarea es generar UNA lista de palabras para CADA tema.
+            
+            REGLAS DE FORMATO ESTRICTAS:
+            1. Formato de Bloque:
+               TÍTULO DEL TEMA
+               PALABRA1
+               PALABRA2
+               ...
+            
+            2. Separa cada bloque de tema con DOS saltos de línea (\n\n).
+            3. Genera exactamente ${cantidad} palabras por cada tema.
+            4. Palabras en MAYÚSCULAS, sin tildes (usa N por Ñ), sin espacios, máximo 13 letras.
+            5. Solo devuelve el contenido, nada de "Aquí tienes".
+            `;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
+
+            const data = await response.json();
+
+            if (data.error) throw new Error(data.error.message);
+
+            const textoGenerado = data.candidates[0].content.parts[0].text;
+            
+            // Inyectar en el textarea masivo
+            inputPalabrasMulti.value = textoGenerado.trim();
+            
+            // Feedback visual
+            inputPalabrasMulti.style.borderColor = "#db2777";
+            setTimeout(() => inputPalabrasMulti.style.borderColor = "", 500);
+            
+            // Opcional: Cerrar panel IA para ver resultado
+            // divAiSectionMulti.classList.add('hidden');
+            // btnActivateIAMulti.innerText = "🤖 Generar Pack con IA";
+
+        } catch (error) {
+            console.error(error);
+            alert("Error IA: " + error.message);
+        } finally {
+            btnAIGenerateMulti.innerText = textoOriginal;
+            btnAIGenerateMulti.disabled = false;
+        }
+    });
 
     function setMode(mode) {
         currentMode = mode;
@@ -71,6 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnTema.innerText = '☀️';
         }
     });
+
 
     // --- BOTONES AUXILIARES ---
     btnEliminar.addEventListener('click', () => {

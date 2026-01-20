@@ -106,6 +106,89 @@ body {
 input, textarea { padding: 0.75rem; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-primary); border-radius: 8px; }
 textarea { font-family: 'Roboto Mono', monospace; min-height: 100px; resize: vertical; }
 
+/* Clase de utilidad para ocultar cosas */
+.hidden {
+    display: none !important;
+}
+
+/* Estilos de la sección IA */
+.ai-section {
+    background: var(--bg-body);
+    padding: 15px;
+    border-radius: 10px;
+    border: 1px solid #c7d2fe;
+    margin-bottom: 20px;
+    animation: fadeIn 0.3s ease; /* Efecto suave al aparecer */
+}
+
+/* Estilo para el botón de borde morado */
+.btn-outline-purple {
+    background: transparent;
+    border: 1px solid #6366f1 !important;
+    color: #6366f1;
+    transition: all 0.2s;
+}
+
+.btn-outline-purple:hover {
+    background: #6366f1;
+    color: white;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.ai-header small {
+    color: var(--text-secondary);
+}
+
+.ai-input {
+    padding: 8px;
+    border: 1px solid #c7d2fe;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    width: 100%;
+}
+
+.ai-input:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+#ai-setup-box {
+    display: flex;
+    gap: 5px;
+}
+
+.ai-help-text {
+    font-size: 0.75rem;
+    margin-top: 5px;
+    text-align: right;
+}
+
+.ai-help-text a {
+    color: #6366f1;
+    text-decoration: none;
+}
+
+.btn-outline-pink {
+    border: 1px solid #db2777;
+    color: #db2777;
+    background: transparent;
+}
+.btn-outline-pink:hover {
+    background: #db2777;
+    color: white;
+}
 /* Botones */
 .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.8rem; border-radius: 6px; cursor: pointer; border: 1px solid transparent; flex: 1; }
 .btn-outline-danger { background: transparent; border-color: #ef4444; color: #ef4444; }
@@ -183,9 +266,58 @@ button { border: none; font-weight: 600; cursor: pointer; transition: 0.2s; bord
 .grid-cell { background: white; aspect-ratio: 1/1; display: flex; align-items: center; justify-content: center; font-family: 'Roboto Mono', monospace; font-weight: 700; font-size: 1.2rem; text-transform: uppercase; }
 .grid-cell.highlight { background-color: var(--highlight-color) !important; color: black !important; }
 
-.word-bank { width: 100%; background: #f8fafc; padding: 20px; border: 2px solid #e2e8f0; border-radius: 8px; }
-#lista-palabras { list-style: none; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-#lista-palabras li { text-align: center; font-size: 0.9rem; padding: 5px; background: white; border: 1px solid #ddd; border-radius: 4px; }
+/* --- LISTA DE PALABRAS (WORD BANK) --- */
+.word-bank {
+    width: 100%;
+    background: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    margin-top: 20px;
+}
+
+.word-bank h3 {
+    margin-bottom: 10px;
+    font-size: 1rem;
+    color: #334155;
+    font-weight: 600;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 5px;
+}
+
+/* CAMBIO IMPORTANTE: Usamos '.word-bank ul' en vez de '#lista-palabras' */
+.word-bank ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    
+    /* Sistema de Columnas Automático */
+    display: grid;
+    /* Esto crea columnas de mínimo 110px. Si hay espacio, caben más. */
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 8px;
+}
+
+/* Estilo de cada palabra */
+.word-bank ul li {
+    font-size: 0.85rem;
+    color: #334155;
+    background-color: white;
+    padding: 6px 4px;
+    border: 1px solid #cbd5e1;
+    border-radius: 4px;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis; 
+    white-space: nowrap; 
+}
+
+/* Ajuste móvil */
+@media (max-width: 480px) {
+    .word-bank ul {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
 .footer-sheet { margin-top: auto; padding-top: 20px; border-top: 1px solid #eee; width: 100%; text-align: center; color: #999; font-size: 0.8rem; }
 
 /* =========================================

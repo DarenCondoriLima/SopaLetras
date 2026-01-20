@@ -15,7 +15,9 @@ class GeneradorSopa {
         this.soluciones = {};
         this.palabrasColocadas = [];
         this.palabrasOmitidas = [];
-        // Por defecto, relleno normal
+        // Por defecto, relleno normal (A-Z + Ñ). 
+        // Nota: En modos Fácil/Medio, si una palabra tiene tilde, se destacará visualmente 
+        // porque el relleno no tiene tildes. Esto ayuda a encontrarla.
         this.letrasDelJuego = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"; 
     }
 
@@ -32,13 +34,14 @@ class GeneradorSopa {
         const diagonalAbajoInv = { x: -1, y: 1 };
         const diagonalArribaInv = { x: -1, y: -1 };
 
-        // Definimos el pool de letras para el camuflaje
+        // Pool base de letras
         let letrasCamuflaje = "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ";
         
-        // Calculamos las letras únicas SI es necesario (para optimizar)
+        // --- CORRECCIÓN 1: Permitir tildes en el camuflaje INSANO ---
         if (nivel === 'insano') {
             const letrasUnicas = new Set(listaPalabras.join('').toUpperCase().split(''));
-            const filtradas = [...letrasUnicas].filter(char => /[A-ZÑ]/.test(char));
+            // Filtramos permitiendo vocales con tilde
+            const filtradas = [...letrasUnicas].filter(char => /[A-ZÑÁÉÍÓÚÜ]/.test(char));
             if (filtradas.length > 0) {
                 letrasCamuflaje = filtradas.join('');
             }
@@ -56,7 +59,7 @@ class GeneradorSopa {
                 break;
 
             case 'dificil':
-                // Todas las direcciones, pero con letras de relleno normales para dar un respiro
+                // Todas las direcciones, pero relleno estándar
                 this.direcciones = [
                     horizontal, vertical, diagonalAbajo, diagonalArriba,
                     horizontalInv, verticalInv, diagonalAbajoInv, diagonalArribaInv
@@ -65,7 +68,7 @@ class GeneradorSopa {
                 break;
 
             case 'insano':
-                // TODAS las direcciones Y relleno restringido
+                // Todas las direcciones + Relleno restringido (incluyendo tildes si las palabras las tienen)
                 this.direcciones = [
                     horizontal, vertical, diagonalAbajo, diagonalArriba,
                     horizontalInv, verticalInv, diagonalAbajoInv, diagonalArribaInv
@@ -83,8 +86,9 @@ class GeneradorSopa {
         this.inicializarGrilla();
         this.configurarDificultad(dificultad, listaPalabras);
         
+        // --- CORRECCIÓN 2: No borrar las tildes al limpiar las palabras ---
         const palabrasOrdenadas = listaPalabras
-            .map(p => p.toUpperCase().replace(/[^A-ZÑ]/g, ''))
+            .map(p => p.toUpperCase().replace(/[^A-ZÑÁÉÍÓÚÜ]/g, '')) // Se agregó ÁÉÍÓÚÜ al regex
             .sort((a, b) => b.length - a.length);
 
         palabrasOrdenadas.forEach(palabra => {
@@ -127,39 +131,34 @@ class GeneradorSopa {
         const finFila = fila + (dir.y * (palabra.length - 1));
         const finCol = col + (dir.x * (palabra.length - 1));
 
-        // 1. Verificar si la palabra entera cabe dentro de los límites
+        // 1. Verificar límites
         if (finFila < 0 || finFila >= this.filas || finCol < 0 || finCol >= this.columnas) {
             return false;
         }
 
-        // --- NUEVA REGLA: MARGEN DE SEGURIDAD ---
-        // Esto evita "MISTISABANDIA". Verifica que no haya letras pegadas
-        // justo antes ni justo después en la misma línea.
+        // --- MARGEN DE SEGURIDAD (Mantiene tu lógica anterior) ---
+        // Evita letras pegadas antes o después de la palabra
         
-        // Revisar casilla ANTERIOR al inicio
+        // Revisar casilla ANTERIOR
         const preFila = fila - dir.y;
         const preCol = col - dir.x;
-        // Si la casilla anterior existe (está dentro del mapa) Y no está vacía... rechazamos.
         if (preFila >= 0 && preFila < this.filas && preCol >= 0 && preCol < this.columnas) {
             if (this.grilla[preFila][preCol] !== '') return false;
         }
 
-        // Revisar casilla POSTERIOR al final
+        // Revisar casilla POSTERIOR
         const postFila = finFila + dir.y;
         const postCol = finCol + dir.x;
-        // Si la casilla posterior existe Y no está vacía... rechazamos.
         if (postFila >= 0 && postFila < this.filas && postCol >= 0 && postCol < this.columnas) {
             if (this.grilla[postFila][postCol] !== '') return false;
         }
-        // ----------------------------------------
 
-        // 2. Verificar colisiones letra por letra (Cruces válidos)
+        // 2. Verificar colisiones letra por letra
         for (let i = 0; i < palabra.length; i++) {
             const f = fila + (dir.y * i);
             const c = col + (dir.x * i);
             const celdaActual = this.grilla[f][c];
 
-            // La celda debe estar vacía O tener la MISMA letra
             if (celdaActual !== '' && celdaActual !== palabra[i]) {
                 return false;
             }
@@ -178,7 +177,6 @@ class GeneradorSopa {
         for (let f = 0; f < this.filas; f++) {
             for (let c = 0; c < this.columnas; c++) {
                 if (this.grilla[f][c] === '') {
-                    // Usamos el pool de letras definido en configurarDificultad
                     this.grilla[f][c] = this.letrasDelJuego[Math.floor(Math.random() * this.letrasDelJuego.length)];
                 }
             }
