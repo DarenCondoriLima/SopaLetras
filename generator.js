@@ -1,4 +1,4 @@
-class GeneradorSopa {
+export default class GeneradorSopa {
     constructor(filas = 20, columnas = 20) {
         this.filas = filas;
         this.columnas = columnas;
